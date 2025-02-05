@@ -1,0 +1,5 @@
+.req {
+  --red: rgb(153 27 27);
+  color: var(--red);
+  opacity: 0.5;
+}

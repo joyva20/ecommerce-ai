@@ -1,12 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import { Link } from "react-router-dom";
 import { assets } from "../assets/assets";
+import {toast} from 'react-toastify'
 import CartTotal from "../components/CartTotal";
 
 const Cart = () => {
-  const { products, currency, cartItems, UpdateQuantity } =
+  const { products, currency, cartItems, UpdateQuantity, navigate } =
     useContext(ShopContext);
   const [cartData, setCarData] = useState([]);
 
@@ -97,6 +98,21 @@ const Cart = () => {
       <div className="my-20 flex justify-end">
         <div className="w-full sm:w-[450px]">
           <CartTotal />
+          <div className="w-full text-end">
+            <button
+              onClick={() => {
+                
+                let navPath = "/place-order";
+                if (cartData.length <= 0) {navPath = "/cart";
+                  toast.error("Add an item to the cart to proceed.")
+                }
+                navigate(navPath);
+              }}
+              className="my-8 bg-black px-8 py-3 text-sm text-white"
+            >
+              PROCEED TO CHECKOUT
+            </button>
+          </div>
         </div>
       </div>
     </div>

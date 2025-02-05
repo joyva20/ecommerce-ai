@@ -2,6 +2,7 @@
 import { createContext, useState } from "react";
 import { products } from "../assets/assets";
 import {toast} from 'react-toastify'
+import {useNavigate} from 'react-router-dom'
 
 export const ShopContext = createContext();
 
@@ -11,6 +12,8 @@ const ShopContextProvider = (props) => {
   const [search, setSearch] = useState(``);
   const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState({});
+  //Programmatic Redirection: Navigate to different routes based on application state or conditions.
+  const navigate = useNavigate();
 
   const addToCart = async (itemid, size)  => {
     if (!size){
@@ -81,7 +84,8 @@ const getCartAmount = () =>{
     addToCart,
     getCartCount,
     UpdateQuantity,
-    getCartAmount
+    getCartAmount,
+    navigate
   };
   return (
     //Wrapping: {props.children}
