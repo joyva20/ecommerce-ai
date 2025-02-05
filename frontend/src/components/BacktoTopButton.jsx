@@ -12,7 +12,6 @@ const BacktoTopButton = () => {
         } else {
           setShowButton(false);
         }
-
       }
     };
     window.addEventListener("scroll", handleScroll);
@@ -28,7 +27,7 @@ const BacktoTopButton = () => {
   return (
     <button
       onClick={scrollToTop}
-      className={`${showButton ? `${style.show}`: ""} ${style.ScrollToTop}`}
+      className={`${showButton ? `${style.show}` : ""} ${style.ScrollToTop}`}
       style={{ display: showButton ? "block" : "none" }}
     >
       <img src="../../public/Arrow_Up.svg" alt="Up Arrow" />

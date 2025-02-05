@@ -30,18 +30,18 @@ const NavBar = () => {
       </ul>
       <div className="flex items-center gap-6">
         <img
-        onClick={() => setShowSearch(true)}
+          onClick={() => setShowSearch(true)}
           src={assets.search_icon}
           alt="Search"
           className="w-5 cursor-pointer"
         />
         <div className="group relative">
-          <Link to={'./login'}>
-          <img
-            src={assets.profile_icon}
-            alt="Profile Icon"
-            className="w-5 cursor-pointer"
-          />
+          <Link to={"./login"}>
+            <img
+              src={assets.profile_icon}
+              alt="Profile Icon"
+              className="w-5 cursor-pointer"
+            />
           </Link>
           <div className="dropdown-menu absolute right-0 hidden pt-4 group-hover:block">
             <div className="flex w-36 flex-col gap-2 rounded-lg bg-slate-100 px-5 py-3 text-gray-500">

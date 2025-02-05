@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { createContext, useState } from "react";
 import { products } from "../assets/assets";
-import {toast} from 'react-toastify'
-import {useNavigate} from 'react-router-dom'
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export const ShopContext = createContext();
 
@@ -15,62 +15,60 @@ const ShopContextProvider = (props) => {
   //Programmatic Redirection: Navigate to different routes based on application state or conditions.
   const navigate = useNavigate();
 
-  const addToCart = async (itemid, size)  => {
-    if (!size){
-      toast.error('Select Product Size');
+  const addToCart = async (itemid, size) => {
+    if (!size) {
+      toast.error("Select Product Size");
       return;
     }
     let cartData = structuredClone(cartItems);
-    if(cartData[itemid]){
-      if(cartData[itemid][size]){
+    if (cartData[itemid]) {
+      if (cartData[itemid][size]) {
         cartData[itemid][size] += 1;
-      }
-      else{
+      } else {
         cartData[itemid][size] = 1;
       }
-    }
-    else{
-      cartData[itemid] = {}
+    } else {
+      cartData[itemid] = {};
       cartData[itemid][size] = 1;
     }
     setCartItems(cartData);
-  }
-const getCartCount = () => {
-  let totalCount = 0;
-  for(const items in  cartItems){
-    for(const size in cartItems[items]){
+  };
+  const getCartCount = () => {
+    let totalCount = 0;
+    for (const items in cartItems) {
+      for (const size in cartItems[items]) {
         try {
-          if(cartItems[items][size] > 0){
-              totalCount += cartItems[items][size];
+          if (cartItems[items][size] > 0) {
+            totalCount += cartItems[items][size];
           }
         } catch (error) {
-          console.error(error)
+          console.error(error);
         }
-    }
-  }
-  return totalCount
-}
-const UpdateQuantity = async (itemid, size, quantity) => {
-  let cartData = structuredClone(cartItems);
-  cartData[itemid][size] = quantity
-  setCartItems(cartData);
-}
-const getCartAmount = () =>{
-  let totalAmount = 0;
-  for(const items in  cartItems){
-    let itemInfo = products.find((product) => product._id === items)
-    for(const item in cartItems[items]){
-      try {
-        if( cartItems[items][item] > 0){
-          totalAmount += itemInfo.price * cartItems[items][item]
-        }
-      } catch (error) {
-        console.error(error)
       }
     }
-  }
-  return totalAmount;
-}
+    return totalCount;
+  };
+  const UpdateQuantity = async (itemid, size, quantity) => {
+    let cartData = structuredClone(cartItems);
+    cartData[itemid][size] = quantity;
+    setCartItems(cartData);
+  };
+  const getCartAmount = () => {
+    let totalAmount = 0;
+    for (const items in cartItems) {
+      let itemInfo = products.find((product) => product._id === items);
+      for (const item in cartItems[items]) {
+        try {
+          if (cartItems[items][item] > 0) {
+            totalAmount += itemInfo.price * cartItems[items][item];
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
+    return totalAmount;
+  };
 
   const value = {
     products,
@@ -85,7 +83,7 @@ const getCartAmount = () =>{
     getCartCount,
     UpdateQuantity,
     getCartAmount,
-    navigate
+    navigate,
   };
   return (
     //Wrapping: {props.children}

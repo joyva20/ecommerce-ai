@@ -89,7 +89,10 @@ const Product = () => {
             </div>
           </div>
           {/* We Need to Add this to Global context - using global addToCart Function */}
-          <button onClick={() => addToCart(productData._id, size)} className="bg-black px-8 py-3 text-sm text-white hover:bg-gray-900 active:bg-gray-700">
+          <button
+            onClick={() => addToCart(productData._id, size)}
+            className="bg-black px-8 py-3 text-sm text-white hover:bg-gray-900 active:bg-gray-700"
+          >
             ADD TO CART
           </button>
           <hr className="mt-8 sm:w-4/5" />

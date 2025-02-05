@@ -1,5 +1,5 @@
-import {useEffect, useState} from "react";
-import { Routes, Route , Navigate, useLocation} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import Home from "./pages/Home";
 import Collection from "./pages/Collection";
@@ -14,8 +14,8 @@ import NoPage from "./pages/NoPage";
 import Footer from "./components/Footer";
 import BacktoTopButton from "./components/BacktoTopButton";
 import SearchBar from "./components/SearchBar";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const pages = {
   home: { path: "/", element: <Home /> },
@@ -35,7 +35,7 @@ const App = () => {
 
   useEffect(() => {
     // Update NavBar visibility based on current path
-    if (location.pathname === '/404') {
+    if (location.pathname === "/404") {
       setShowGlobalComponent(false);
     } else {
       setShowGlobalComponent(true);
@@ -54,8 +54,8 @@ const App = () => {
         {Object.entries(pages).map(([key, { path, element }]) => (
           <Route key={key} path={path} element={element} />
         ))}
-        <Route path="/home" element={<Navigate to="/" />}/>
-        <Route path="*" element={<Navigate to="/404" />}/>
+        <Route path="/home" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/404" />} />
         <Route path="/404" element={<NoPage />} />
       </Routes>
       {showGlobalComponent && <BacktoTopButton />}

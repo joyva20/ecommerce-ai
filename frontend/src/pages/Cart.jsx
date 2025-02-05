@@ -3,7 +3,7 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import { Link } from "react-router-dom";
 import { assets } from "../assets/assets";
-import {toast} from 'react-toastify'
+import { toast } from "react-toastify";
 import CartTotal from "../components/CartTotal";
 
 const Cart = () => {
@@ -101,10 +101,10 @@ const Cart = () => {
           <div className="w-full text-end">
             <button
               onClick={() => {
-                
                 let navPath = "/place-order";
-                if (cartData.length <= 0) {navPath = "/cart";
-                  toast.error("Add an item to the cart to proceed.")
+                if (cartData.length <= 0) {
+                  navPath = "/cart";
+                  toast.error("Add an item to the cart to proceed.");
                 }
                 navigate(navPath);
               }}

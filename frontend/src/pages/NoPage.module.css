@@ -2,7 +2,6 @@
     404 page
 =======================*/
 
-
 .page_404 {
   display: flex;
   align-items: center;
@@ -11,14 +10,13 @@
   background: #fff;
   font-family: "Arvo", serif;
 }
-.container{
+.container {
   display: flex;
   flex-direction: column;
   gap: 3em;
   align-items: center;
   justify-content: center;
 }
-
 
 .four_zero_four_bg {
   background-image: url(../../public/404.gif);
@@ -27,12 +25,10 @@
   background-position: center;
   background-repeat: no-repeat;
   background-clip: border-box;
-  
 }
 
-h1._404_Message{
+h1._404_Message {
   font-size: 3em;
-
 }
 
 .four_zero_four_bg h3 {

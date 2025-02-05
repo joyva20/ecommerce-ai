@@ -1,4 +1,3 @@
-
 import BestSeller from "../components/BestSeller";
 import Hero from "../components/Hero";
 import LatestCollection from "../components/LatestCollection";
@@ -9,10 +8,10 @@ const Home = () => {
   return (
     <div>
       <Hero />
-      <LatestCollection/>
+      <LatestCollection />
       <BestSeller />
-      <OurPolicy/>
-      <NewsletterBox/>
+      <OurPolicy />
+      <NewsletterBox />
     </div>
   );
 };

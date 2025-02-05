@@ -8,7 +8,10 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={onSubmitHandler} className="m-auto mt-14 flex w-[90%] flex-col items-center gap-4 text-gray-800 sm:max-w-96">
+    <form
+      onSubmit={onSubmitHandler}
+      className="m-auto mt-14 flex w-[90%] flex-col items-center gap-4 text-gray-800 sm:max-w-96"
+    >
       <div className="mb-2 mt-10 inline-flex items-center gap-2">
         <p className="prata-regular text-3xl">{currentState}</p>
         <hr className="h-[1.5px] w-8 border-none bg-gray-800" />

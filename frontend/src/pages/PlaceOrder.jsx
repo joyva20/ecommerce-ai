@@ -139,15 +139,17 @@ const PlaceOrder = () => {
                     const inputThatIsNotFilled = input.placeholder.slice(0, -1);
                     navPath = "/place-order";
                     canShowError = 1;
-                    inputsNotFilled.push(inputThatIsNotFilled)
+                    inputsNotFilled.push(inputThatIsNotFilled);
                   }
                 }
-                if(canShowError){
+                if (canShowError) {
                   let errorMessage = "Fill out the required fills:";
-                  inputsNotFilled.map((inputName) => errorMessage +=  '\n' + inputName )
+                  inputsNotFilled.map(
+                    (inputName) => (errorMessage += "\n" + inputName),
+                  );
                   toast.error(<pre>{errorMessage}</pre>);
-                }else{
-                  toast.success("Your order has been submitted.")
+                } else {
+                  toast.success("Your order has been submitted.");
                 }
                 navigate(navPath);
               }}
