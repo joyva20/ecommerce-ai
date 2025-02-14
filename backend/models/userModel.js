@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     schema which tells mongoose not to minimize those empty objects when you
     convert to JSON. */
   },
-  { minimize: false },
+  { minimize: false }
 );
 
 // Return the Created User Model or create a new User Model

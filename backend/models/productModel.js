@@ -14,7 +14,6 @@ const productSchema = new mongoose.Schema({
 });
 
 // Return the Created Product Model or create a new product Model
-const productModel =
-  mongoose.models.product || mongoose.model("product", productSchema);
+const productModel = mongoose.models.product || mongoose.model("product",productSchema);
 
 export default productModel;

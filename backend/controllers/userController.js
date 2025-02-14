@@ -12,12 +12,44 @@ const createToken = (id) => {
     {
       id,
     },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET
   );
 };
 
 // Route for user login
-const loginUser = async (req, res) => {};
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await userModel.findOne({ email });
+    if (!user)
+      return res.json({
+        success: false,
+        message: "User with this email doesn't exist",
+      });
+    /*
+      The bcrypt.compare function internally hashes the plain text password
+      using the same salt and algorithm that was used to create the original
+      hashed password.
+      It then compares the newly generated h ash with the stored hash.
+      */
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.json({
+        success: false,
+        message: "Invalid credentials.",
+      });
+    else {
+      const token = createToken(user._id);
+      return res.json({
+        success: true,
+        token,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 // Route for user Register
 const registerUser = async (req, res) => {
   // res.json({msg:"Register API Working"})
@@ -73,5 +105,21 @@ const registerUser = async (req, res) => {
   }
 };
 // Route for admin login
-const adminLogin = async (req, res) => {};
+const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      const token = jwt.sign(email + password, process.env.JWT_SECRET);
+      res.json({ success: true, token });
+    } else {
+      res.json({ success: false, message: "Invalid credentials." });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 export { loginUser, registerUser, adminLogin };
