@@ -61,7 +61,13 @@ const addProduct = async (req, res) => {
     };
     // console.log(productData);
     const product = new productModel(productData);
-    await product.save();
+    const validationError = product.validateSync();
+    if (validationError) {
+      console.error("Validation failed:", validationError);
+    } else {
+      await product.save();
+      console.log("Product saved successfully");
+    }
     res.json({ success: true, message: "New product has been added." });
   } catch (error) {
     console.error(error);
@@ -96,8 +102,8 @@ const removeProduct = async (req, res) => {
 const getSingleProduct = async (req, res) => {
   try {
     const { productId } = req.body;
-    const product = await productModel.findById(productId)
-    res.json({success:true, product});
+    const product = await productModel.findById(productId);
+    res.json({ success: true, product });
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: error.message });
