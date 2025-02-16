@@ -5,6 +5,7 @@ import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
 import userRouter from "./routes/userRoute.js";
 import productRouter from "./routes/productRoute.js";
+import cartRouter from "./routes/cartRoute.js";
 
 /**********************************
  ********** App Config ************
@@ -27,8 +28,10 @@ app.use(cors());
  ********************************** */
 // Mount the userRouter at the '/api/user' path, so all routes defined in userRouter will be prefixed with '/api/user'
 // Mount the productRouter at the '/api/product' path, so all routes defined in productRouter will be prefixed with '/api/product'
+// Mount the cartRouter at the '/api/cart' path, so all routes defined in cartRouter will be prefixed with '/api/cart'
 app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
+app.use("/api/cart", cartRouter)
 // Define the root endpoint '/' which responds with a simple message to indicate that the API is working
 app.get("/", (req, res) => {
   res.send("API is Working");

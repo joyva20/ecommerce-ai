@@ -4,7 +4,20 @@ import { useContext, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 const NavBar = () => {
   const [isVisible, setisVisible] = useState(false);
-  const { setShowSearch, getCartCount } = useContext(ShopContext);
+  const {
+    setShowSearch,
+    getCartCount,
+    navigate,
+    token,
+    setToken,
+    setCartItems,
+  } = useContext(ShopContext);
+  const logout = () => {
+    navigate("/login");
+    localStorage.removeItem("token");
+    setToken("");
+    setCartItems({});
+  };
   return (
     <div className="flex items-center justify-between py-2 font-medium">
       <Link to="/">
@@ -43,11 +56,21 @@ const NavBar = () => {
               className="w-5 cursor-pointer"
             />
           </Link>
-          <div className="dropdown-menu absolute right-0 hidden pt-4 group-hover:block">
+          {/* Dropdown Menu */}
+          <div
+            className={`${token === "" || !token ? `group-hover:hidden` : "group-hover:block"} dropdown-menu absolute right-0 z-10 hidden pt-4`}
+          >
             <div className="flex w-36 flex-col gap-2 rounded-lg bg-slate-100 px-5 py-3 text-gray-500">
               <p className="cursor-pointer hover:text-black">My Profile</p>
-              <p className="cursor-pointer hover:text-black">Orders</p>
-              <p className="cursor-pointer hover:text-black">Logout</p>
+              <p
+                className="cursor-pointer hover:text-black"
+                onClick={() => navigate("/orders")}
+              >
+                Orders
+              </p>
+              <p className="cursor-pointer hover:text-black" onClick={logout}>
+                Logout
+              </p>
             </div>
           </div>
         </div>
