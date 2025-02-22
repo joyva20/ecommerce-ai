@@ -170,6 +170,7 @@ const ShopContextProvider = (props) => {
     showSearch,
     setShowSearch,
     cartItems,
+    setCartItems,
     addToCart,
     getCartCount,
     UpdateQuantity,
@@ -178,7 +179,6 @@ const ShopContextProvider = (props) => {
     BACKEND_URL,
     token,
     setToken,
-    setCartItems,
   };
   return (
     //Wrapping: {props.children}

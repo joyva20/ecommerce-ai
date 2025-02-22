@@ -8,7 +8,7 @@ const List = ({token}) => {
   const fetchList = async () => {
     try {
       const response = await axios.get(backendURL + "/api/product/list");
-      console.log(response.data.products)
+      // console.log(response.data.products)
       if (response.data.success) setList(response.data.products);
       else toast.error(response.data.message);
     } catch (error) {
