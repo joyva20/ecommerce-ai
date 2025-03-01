@@ -40,7 +40,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="mailto:navidzare7775@gmail.com"
+                  to="mailto:navidzareswe@gmail.com"
                   className="flex gap-2 text-base no-underline"
                 >
                   <img
@@ -48,7 +48,7 @@ const Footer = () => {
                     alt="Email"
                     className="h-6 w-6"
                   />
-                  navidzare7775@gmail.com
+                  NavidZareSWE@gmail.com
                 </Link>
               </li>
               <li>
