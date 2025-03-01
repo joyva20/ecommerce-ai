@@ -23,6 +23,7 @@ const Orders = () => {
           setStatus(order.statusState)
           order.items.map((item) => {
             item["status"] = order.status;
+            item["statusState"] = order.statusState;
             item["payment"] = order.payment;
             item["paymentMethod"] = order.paymentMethod;
             item["date"] = order.date;
@@ -86,6 +87,7 @@ const Orders = () => {
           );
         })}
         {orderData.map((item, index) => {
+          console.log(item)
           return (
             <div
               key={index}
@@ -122,7 +124,7 @@ const Orders = () => {
               <div className="flex justify-between md:w-1/2">
                 <div className="flex items-center gap-2">
                   <p
-                    className={`h-2 min-w-2 rounded-full ${status === "info" ? "bg-blue-400" : status === "error" ? "bg-red-600" : "bg-green-500"}`}
+                    className={`h-2 min-w-2 rounded-full ${item.statusState === "info" ? "bg-blue-400" : item.statusState === "error" ? "bg-red-600" : "bg-green-500"}`}
                   ></p>
                   <p className="text-sm md:text-base">{item.status}</p>
                 </div>

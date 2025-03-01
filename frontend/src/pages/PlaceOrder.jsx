@@ -52,7 +52,17 @@ const PlaceOrder = () => {
             orderItems.push(itemInfo);
           }
       let orderData = {
-        address: formData.address,
+        address: {
+                  firstName: formData.firstName,
+                  lastName: formData.lastName,
+                  address:formData.address,
+                  country: formData.country,
+                  city: formData.city,
+                  state: formData.state,
+                  street: formData.street,
+                  zipcode: formData.zipcode,
+
+        },
         items: orderItems,
         amount: getCartAmount() + delivery_fee,
       };
