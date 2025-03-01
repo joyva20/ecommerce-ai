@@ -17,7 +17,7 @@ textarea {
   border-radius: 4px;
   background-color: rgb(253 242 248 / var(--tw-bg-opacity, 1));
 }
-textarea{
+textarea {
   min-height: 10ch;
 }
 

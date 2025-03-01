@@ -12,7 +12,7 @@ const createToken = (id) => {
     {
       id,
     },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET,
   );
 };
 

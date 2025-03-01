@@ -48,27 +48,27 @@ const Add = ({ token }) => {
       const response = await axios.post(
         backendURL + "/api/product/add",
         formData,
-        { headers: { token } }
+        { headers: { token } },
       );
       response.data.success
         ? toast.success(response.data.message)
         : toast.error(response.data.message);
-        if(response.data.success){
-          setImage1(false)
-          setImage2(false)
-          setImage3(false)
-          setImage4(false)
-          setName('');
-          setDescription("")
-          setPrice("")
-          setCategory("Men")
-          setSubCategory("Topwear")
-          setBestSeller(false)
-          setSizes([])
-        }
+      if (response.data.success) {
+        setImage1(false);
+        setImage2(false);
+        setImage3(false);
+        setImage4(false);
+        setName("");
+        setDescription("");
+        setPrice("");
+        setCategory("Men");
+        setSubCategory("Topwear");
+        setBestSeller(false);
+        setSizes([]);
+      }
     } catch (error) {
       console.error("Error submitting form", error);
-      toast.error(error.message)
+      toast.error(error.message);
     }
   };
 
@@ -207,7 +207,7 @@ const Add = ({ token }) => {
               setSizes((prev) =>
                 prev.includes("S")
                   ? prev.filter((item) => item !== "S")
-                  : [...prev, "S"]
+                  : [...prev, "S"],
               )
             }
           >
@@ -226,7 +226,7 @@ const Add = ({ token }) => {
               setSizes((prev) =>
                 prev.includes("M")
                   ? prev.filter((item) => item !== "M")
-                  : [...prev, "M"]
+                  : [...prev, "M"],
               )
             }
           >
@@ -245,7 +245,7 @@ const Add = ({ token }) => {
               setSizes((prev) =>
                 prev.includes("L")
                   ? prev.filter((item) => item !== "L")
-                  : [...prev, "L"]
+                  : [...prev, "L"],
               )
             }
           >
@@ -264,7 +264,7 @@ const Add = ({ token }) => {
               setSizes((prev) =>
                 prev.includes("XL")
                   ? prev.filter((item) => item !== "XL")
-                  : [...prev, "XL"]
+                  : [...prev, "XL"],
               )
             }
           >
@@ -283,7 +283,7 @@ const Add = ({ token }) => {
               setSizes((prev) =>
                 prev.includes("XXL")
                   ? prev.filter((item) => item !== "XXL")
-                  : [...prev, "XXL"]
+                  : [...prev, "XXL"],
               )
             }
           >

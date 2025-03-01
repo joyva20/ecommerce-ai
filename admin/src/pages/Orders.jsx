@@ -11,7 +11,7 @@ const Orders = ({ token }) => {
       const response = await axios.post(
         backendURL + "/api/order/list",
         {},
-        { headers: { token } }
+        { headers: { token } },
       );
       if (response.data.success) {
         setOrders(response.data.orders);
@@ -29,8 +29,8 @@ const Orders = ({ token }) => {
         e.target.value === "Cancel"
           ? "error"
           : e.target.value === "Delivered"
-          ? "success"
-          : "info";
+            ? "success"
+            : "info";
       const status =
         e.target.value === "Cancel"
           ? "Order has been cancelled, contact us for more details."
@@ -42,7 +42,7 @@ const Orders = ({ token }) => {
           status,
           statusState,
         },
-        { headers: { token } }
+        { headers: { token } },
       );
       if (response.data.success) {
         await fetchAllOrders();
@@ -121,8 +121,8 @@ const Orders = ({ token }) => {
                   order.statusState === "error"
                     ? "Cancel"
                     : order.statusState === "info"
-                    ? order.status
-                    : order.status
+                      ? order.status
+                      : order.status
                 }
                 className="p-2 font-semibold"
               >

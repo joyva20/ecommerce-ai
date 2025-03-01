@@ -17,13 +17,12 @@ const Login = ({ setToken }) => {
 
       if (response.data.success) {
         setToken(response.data.token);
-      }
-      else{
-        toast.error(response.data.message)
+      } else {
+        toast.error(response.data.message);
       }
     } catch (error) {
-        console.error(error)
-        toast.error(error.message)
+      console.error(error);
+      toast.error(error.message);
     }
   };
   return (

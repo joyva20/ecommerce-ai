@@ -18,16 +18,17 @@ const productRouter = express.Router();
 // Define the route for retrieving a single product, which triggers the getSingleProduct function
 // Define the route for listing all products, which triggers the listProducts function
 productRouter.post(
-  "/add",adminAuth,
+  "/add",
+  adminAuth,
   upload.fields([
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },
     { name: "image3", maxCount: 1 },
     { name: "image4", maxCount: 1 },
   ]),
-  addProduct
+  addProduct,
 );
-productRouter.post("/remove",adminAuth, removeProduct);
+productRouter.post("/remove", adminAuth, removeProduct);
 productRouter.post("/single", getSingleProduct);
 productRouter.get("/list", listProducts);
 

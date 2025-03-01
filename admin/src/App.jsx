@@ -10,11 +10,11 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export const backendURL = import.meta.env.VITE_BACKEND_URL;
-export const currency = "£"
+export const currency = "£";
 
 const App = () => {
   const [token, setToken] = useState(
-    localStorage.getItem("token") ? localStorage.getItem("token") : ""
+    localStorage.getItem("token") ? localStorage.getItem("token") : "",
   );
   useEffect(() => {
     // Sets the value of the pair identified by key to value, creating a new key/value pair if none existed for key previously.
