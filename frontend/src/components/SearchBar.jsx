@@ -6,15 +6,21 @@ import { useLocation } from "react-router-dom";
 const SearchBar = () => {
   const { search, setSearch, showSearch, setShowSearch } =
     useContext(ShopContext);
-  const [loc, setloc] = useState(useLocation());
+  // const [loc, setloc] = useState(useLocation());
+  const [visible, setVisible] = useState(false);
   const location = useLocation();
+  // useEffect(() => {
+  //   if (location.pathname !== loc.pathname) {
+  //     setShowSearch(false);
+  //     setloc(location);
+  //   }
+  // }, [location]);
   useEffect(() => {
-    if (location.pathname !== loc.pathname) {
-      setShowSearch(false);
-      setloc(location);
-    }
-  }, [location]);
-  return showSearch ? (
+    if (location.pathname.includes("collection") && showSearch)
+      setVisible(true);
+    else setVisible(false);
+  }, [location, showSearch]);
+  return showSearch && visible ? (
     <div className="border-b border-t bg-gray-50 text-center">
       <div className="mx-3 my-5 inline-flex w-3/4 items-center justify-center rounded-full border border-gray-400 px-5 py-2 sm:w-1/2">
         <input

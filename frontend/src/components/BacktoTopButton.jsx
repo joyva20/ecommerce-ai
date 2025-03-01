@@ -30,7 +30,7 @@ const BacktoTopButton = () => {
       className={`${showButton ? `${style.show}` : ""} ${style.ScrollToTop}`}
       style={{ display: showButton ? "block" : "none" }}
     >
-      <img src="../../public/Arrow_Up.svg" alt="Up Arrow" />
+      <img src="/Arrow_Up.svg" alt="Up Arrow" />
     </button>
   );
 };

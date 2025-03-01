@@ -3,11 +3,16 @@ import { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { Link } from "react-router-dom";
 
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+
 const ProductItem = ({ id, image, name, price }) => {
   const { currency } = useContext(ShopContext);
 
   return (
-    <Link className="cursor-pointer text-gray-700 flex flex-col justify-between" to={`/product/${id}`}>
+    <Link onClick={scrollToTop} className="cursor-pointer text-gray-700 flex flex-col justify-between" to={`/product/${id}`}>
       <div className="overflow-hidden h-full">
         <img className="hover:scale-110 transition ease-in-out h-full object-center"src={image[0]} alt="" />
       </div>

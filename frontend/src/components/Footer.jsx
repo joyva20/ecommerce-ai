@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { assets } from "../assets/assets";
-import style from "./footer.module.css";
+import style from "./Footer.module.css";
 
 const Footer = () => {
   return (
@@ -32,7 +32,7 @@ const Footer = () => {
             <ul className="flex flex-col gap-3 text-gray-600">
               <li className="flex gap-2">
                 <img
-                  src="../../public/telephone.svg"
+                  src="/telephone.svg"
                   alt="phone"
                   className="h-6 w-6"
                 />
@@ -44,7 +44,7 @@ const Footer = () => {
                   className="flex gap-2 text-base no-underline"
                 >
                   <img
-                    src="../../public/envelope.svg"
+                    src="/envelope.svg"
                     alt="Email"
                     className="h-6 w-6"
                   />
@@ -57,7 +57,7 @@ const Footer = () => {
                   className="flex gap-2 text-base no-underline"
                 >
                   <img
-                    src="../../public/github.svg"
+                    src="/github.svg"
                     alt="Email"
                     className="h-6 w-6"
                   />
@@ -70,7 +70,7 @@ const Footer = () => {
                   className="flex gap-2 text-base no-underline"
                 >
                   <img
-                    src="../../public/telegram.svg"
+                    src="/telegram.svg"
                     alt="Email"
                     className="h-6 w-6"
                   />

@@ -1,5 +1,5 @@
 import { assets } from "../assets/assets";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useContext, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 const NavBar = () => {
@@ -12,6 +12,7 @@ const NavBar = () => {
     setToken,
     setCartItems,
   } = useContext(ShopContext);
+  const location = useLocation();
   const logout = () => {
     navigate("/login");
     localStorage.removeItem("token");
@@ -43,7 +44,11 @@ const NavBar = () => {
       </ul>
       <div className="flex items-center gap-6">
         <img
-          onClick={() => setShowSearch(true)}
+          onClick={() => {
+            setShowSearch(true);
+            if (!location.pathname.includes("collection"))
+              navigate("/collection");
+          }}
           src={assets.search_icon}
           alt="Search"
           className="w-5 cursor-pointer"
