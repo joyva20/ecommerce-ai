@@ -53,7 +53,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="https://github.com/navidzare7775"
+                  to="https://github.com/NavidZareSWE"
                   className="flex gap-2 text-base no-underline"
                 >
                   <img
@@ -61,12 +61,12 @@ const Footer = () => {
                     alt="Email"
                     className="h-6 w-6"
                   />
-                  @NavidZare7775
+                  @NavidZareSWE
                 </Link>
               </li>
               <li>
                 <Link
-                  to="https://t.me/navidzare7775"
+                  to="https://t.me/NavidZareSWE"
                   className="flex gap-2 text-base no-underline"
                 >
                   <img
@@ -74,7 +74,7 @@ const Footer = () => {
                     alt="Email"
                     className="h-6 w-6"
                   />
-                  @NavidZare7775
+                  @NavidZareSWE
                 </Link>
               </li>
             </ul>
@@ -85,10 +85,10 @@ const Footer = () => {
           <p className="py=5 text-center text-sm">
             CopyRight© 2024@Ecommerce - All rights Reserved by{" "}
             <Link
-              to={"https://github.com/navidzare7775"}
+              to={"https://github.com/NavidZareSWE"}
               className="font-semibold text-blue-950"
             >
-              @NavidZare7775
+              @NavidZareSWE
             </Link>
           </p>
         </div>
