@@ -1,9 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { backendURL, currency } from "../App";
+import { backendURL } from "../App";
 import { toast } from "react-toastify";
+import Edit from "./Edit";
 const List = ({ token }) => {
   const [list, setList] = useState([]);
+  const [editId, setEditId] = useState(null);
 
   const fetchList = async () => {
     try {
@@ -37,23 +39,25 @@ const List = ({ token }) => {
   useEffect(() => {
     fetchList();
   }, []);
+  const currency = "Rp ";
   return (
     <>
       <p className="mb-2">All Products List</p>
       <div className="flex flex-col gap-2">
         {/* ---------------- List Table Title ------------------------ */}
-        <div className="hidden md:grid grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center py-1 px-2 border bg-gray-100 text-sm">
+        <div className="hidden md:grid grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] items-center py-1 px-2 border bg-gray-100 text-sm">
           <b>Image</b>
           <b>Name</b>
           <b>Category</b>
           <b>Price</b>
+          <b className="text-center">Edit</b>
           <b className="text-center">Action</b>
         </div>
         {/* ---------------- Product List ------------------------ */}
         {list.map((item, index) => {
           return (
             <div
-              className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center gap-2 py-1 px-2 border text-sm"
+              className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] items-center gap-2 py-1 px-2 border text-sm"
               key={index}
             >
               <img className="w-12" src={item.image[0]} alt="Product Image" />
@@ -62,6 +66,12 @@ const List = ({ token }) => {
               <p>
                 {currency}
                 {item.price}
+              </p>
+              <p
+                onClick={() => setEditId(item._id)}
+                className="text-right md:text-center cursor-pointer text-blue-600 underline"
+              >
+                Edit
               </p>
               <p
                 onClick={() => removeProduct(item._id)}
@@ -73,6 +83,14 @@ const List = ({ token }) => {
           );
         })}
       </div>
+      {editId && (
+        <Edit
+          token={token}
+          productId={editId}
+          onClose={() => setEditId(null)}
+          onUpdated={fetchList}
+        />
+      )}
     </>
   );
 };

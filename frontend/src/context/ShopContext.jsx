@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { createContext, useEffect, useState } from "react";
-import { products } from "../assets/assets";
+// import { products } from "../assets/assets";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,7 +8,7 @@ import axios from "axios";
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
-  const currency = "£";
+  const currency = "Rp ";
   const delivery_fee = 10;
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const [search, setSearch] = useState(``);
@@ -123,13 +123,10 @@ const ShopContextProvider = (props) => {
       const response = await axios.get(BACKEND_URL + "/api/product/list");
       if (response.data.success) {
         const DBProducts = response.data.products;
-        products.forEach((item) => {
-          item.sizes = sortSizes(item.sizes);
-        });
         DBProducts.forEach((item) => {
           item.sizes = sortSizes(item.sizes);
         });
-        setProductsDB([...products, ...DBProducts]);
+        setProductsDB(DBProducts);
       } else toast.error(response.data.message);
     } catch (error) {
       console.error(error);

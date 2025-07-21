@@ -16,6 +16,8 @@ import BacktoTopButton from "./components/BacktoTopButton";
 import SearchBar from "./components/SearchBar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./globalNoEdit.css";
+import "./globalNoEdit.css";
 
 const pages = {
   home: { path: "/", element: <Home /> },

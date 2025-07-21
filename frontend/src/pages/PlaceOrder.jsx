@@ -193,10 +193,10 @@ const PlaceOrder = () => {
         </div>
         <input
           className="w-full rounded border border-gray-300 bg-slate-100 px-3.5 py-1.5"
-          type="text"
+          type="tel"
           placeholder="Phone Number*"
-          pattern="((09)|(\+?989))[0-9]{10}"
-          maxLength="13"
+          pattern="^(\+62|62|08)[0-9]{8,11}$"
+          maxLength="14"
           onChange={onChangeHandler}
           name="phone"
           value={formData.phone}

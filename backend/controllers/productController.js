@@ -1,3 +1,114 @@
+// Function for edit/update product
+const editProduct = async (req, res) => {
+  try {
+    const {
+      id,
+      name,
+      description,
+      price,
+      category,
+      subCategory,
+      sizes,
+      bestseller,
+    } = req.body;
+    // Ambil produk lama
+    const oldProduct = await productModel.findById(id);
+    if (!oldProduct) return res.json({ success: false, message: "Product not found" });
+
+    // Handle gambar baru jika ada, update slot sesuai input, sisanya tetap
+    let imagesURL = Array.isArray(oldProduct.image) ? [...oldProduct.image] : [];
+    if (req.files && (req.files.image1 || req.files.image2 || req.files.image3 || req.files.image4)) {
+      const { v2: cloudinary } = await import("cloudinary");
+      const uploadAndReplace = async (idx, file) => {
+        if (!file) return;
+        try {
+          let result = await cloudinary.uploader.upload(file.path, { resource_type: "image" });
+          imagesURL[idx] = result.secure_url;
+        } catch (error) {
+          console.error("Error uploading image:", file.originalname, error);
+          throw new Error(error.message || "Invalid image file");
+        }
+      };
+      await uploadAndReplace(0, req.files.image1 && req.files.image1[0]);
+      await uploadAndReplace(1, req.files.image2 && req.files.image2[0]);
+      await uploadAndReplace(2, req.files.image3 && req.files.image3[0]);
+      await uploadAndReplace(3, req.files.image4 && req.files.image4[0]);
+    }
+
+    // Update produk
+    const updated = await productModel.findByIdAndUpdate(
+      id,
+      {
+        name,
+        description,
+        price: Number(price),
+        category,
+        subCategory,
+        bestseller: bestseller === "true" || bestseller === true,
+        sizes: typeof sizes === "string" ? JSON.parse(sizes) : sizes,
+        image: imagesURL,
+      },
+      { new: true }
+    );
+    res.json({ success: true, message: "Product updated successfully", product: updated });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+// Content-based filtering recommendation endpoint
+// Example: recommend products with similar category or subCategory
+const recommendProducts = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const baseProduct = await productModel.findById(productId);
+    if (!baseProduct) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+    // Find products with same category or subCategory (simple content-based)
+    const recommended = await productModel.find({
+      $or: [
+        { category: baseProduct.category },
+        { subCategory: baseProduct.subCategory }
+      ],
+      _id: { $ne: productId }
+    }).limit(10);
+    res.json({ success: true, recommended });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+import orderModel from "../models/orderModel.js";
+// Rekomendasi berdasarkan riwayat checkout user
+const recommendOnCheckout = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    // Cari semua order user
+    const orders = await orderModel.find({ userID: userId });
+    if (!orders.length) {
+      return res.json({ success: false, message: "No orders found for user" });
+    }
+    // Ambil semua productId dari items yang pernah dibeli
+    const boughtProductIds = orders.flatMap(order => order.items.map(item => item._id));
+    // Ambil kategori/subKategori dari produk yang pernah dibeli
+    const boughtProducts = await productModel.find({ _id: { $in: boughtProductIds } });
+    const categories = [...new Set(boughtProducts.map(p => p.category))];
+    const subCategories = [...new Set(boughtProducts.map(p => p.subCategory))];
+    // Rekomendasikan produk dengan kategori/subKategori yang sama, tapi belum dibeli
+    const recommended = await productModel.find({
+      $or: [
+        { category: { $in: categories } },
+        { subCategory: { $in: subCategories } }
+      ],
+      _id: { $nin: boughtProductIds }
+    }).limit(10);
+    res.json({ success: true, recommended });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productModel.js";
 // Function for add product
@@ -36,13 +147,14 @@ const addProduct = async (req, res) => {
     let imagesURL = await Promise.all(
       images.map(async (item) => {
         try {
+          // Tidak ada validasi ekstensi, terima semua tipe file gambar
           let result = await cloudinary.uploader.upload(item.path, {
             resource_type: "image",
           });
           return result.secure_url;
         } catch (error) {
           console.error("Error uploading image:", item.originalname, error);
-          throw new Error("Invalid image file");
+          throw new Error(error.message || "Invalid image file");
         }
       }),
     );
@@ -110,4 +222,4 @@ const getSingleProduct = async (req, res) => {
   }
 };
 
-export { addProduct, listProducts, removeProduct, getSingleProduct };
+export { addProduct, listProducts, removeProduct, getSingleProduct, recommendProducts, recommendOnCheckout, editProduct };

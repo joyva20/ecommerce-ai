@@ -71,22 +71,43 @@ const Cart = () => {
                   </div>
                 </div>
               </div>
-              <input
-                onChange={(e) =>
-                  e.target.value === "" || e.target.value === "0"
-                    ? null
-                    : UpdateQuantity(
-                        item._id,
-                        item.size,
-                        Number(e.target.value),
-                      )
-                }
-                type="number"
-                min={1}
-                max={999}
-                defaultValue={item.quantity}
-                className="max-w-10 border px-1 py-1 sm:max-w-20 sm:px-2"
-              />
+              <div className="flex items-center gap-2">
+                <button
+                  className="bg-gray-200 px-2 py-1 rounded text-lg"
+                  onClick={() =>
+                    item.quantity > 1 && UpdateQuantity(item._id, item.size, item.quantity - 1)
+                  }
+                  type="button"
+                >
+                  -
+                </button>
+                <input
+                  onChange={(e) =>
+                    e.target.value === "" || e.target.value === "0"
+                      ? null
+                      : UpdateQuantity(
+                          item._id,
+                          item.size,
+                          Number(e.target.value),
+                        )
+                  }
+                  type="number"
+                  min={1}
+                  max={999}
+                  value={item.quantity}
+                  className="max-w-10 border px-1 py-1 sm:max-w-20 sm:px-2 text-center"
+                  readOnly
+                />
+                <button
+                  className="bg-gray-200 px-2 py-1 rounded text-lg"
+                  onClick={() =>
+                    UpdateQuantity(item._id, item.size, item.quantity + 1)
+                  }
+                  type="button"
+                >
+                  +
+                </button>
+              </div>
               <img
                 onClick={() => UpdateQuantity(item._id, item.size, 0)}
                 className="mr-4 w-4 cursor-pointer sm:w-5"

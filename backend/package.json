@@ -16,10 +16,10 @@
     "express",
     "api"
   ],
-  "author": "NavidZare7775",
+  "author": "joyva20",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

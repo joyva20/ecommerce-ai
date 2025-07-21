@@ -72,6 +72,7 @@ const Add = ({ token }) => {
     }
   };
 
+  const currency = "Rp ";
   return (
     <form
       onSubmit={onSubmitHandler}
@@ -187,16 +188,19 @@ const Add = ({ token }) => {
         </div>
         <div>
           <p className="mb-2">Product Price</p>
-          <input
-            onChange={(e) => setPrice(e.target.value)}
-            value={price < 0 ? 0 : price}
-            min={0}
-            max={999_999}
-            className="w-full px-3 py-2 sm:w-[120px]"
-            type="number"
-            placeholder="0.00"
-            required
-          />
+          <div className="flex items-center gap-2">
+            <span>{currency}</span>
+            <input
+              onChange={(e) => setPrice(e.target.value)}
+              value={price < 0 ? 0 : price}
+              min={0}
+              max={999_999}
+              className="w-full px-3 py-2 sm:w-[120px]"
+              type="number"
+              placeholder="0.00"
+              required
+            />
+          </div>
         </div>
       </div>
       <div>

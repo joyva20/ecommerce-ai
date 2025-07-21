@@ -15,13 +15,13 @@ const Contact = () => {
         <div className="flex flex-col items-start justify-center gap-6">
           <p className="text-xl font-semibold text-gray-600">Our Store</p>
           <p className="text-gray-400">
-            <span className="font-semibold">(Not Real Address)</span>
+            <span className="font-semibold">(Indonesia)</span>
             <br />
-            Forever Store 1234 <br /> Elm Street Springfield, IL 62704, USA
+            Store <br /> Semarang, Jawa Tengah 50572, IDN
           </p>
           <p className="text-gray-500">
-            Tel: (+98) 905 95 95 086 <br />
-            Email: navidzare7775@gmail.com
+            Tel: (+62)812 1194 9087 <br />
+            Email: joyvatamam@gmail.com
           </p>
           <p className="text-xl font-semibold text-gray-600">
             Careers at Forever

@@ -1,15 +1,30 @@
+
 import express from "express";
 import {
   addProduct,
   listProducts,
   removeProduct,
   getSingleProduct,
+  recommendProducts,
+  recommendOnCheckout,
+  editProduct,
 } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 import adminAuth from "../middleware/adminauth.js";
 
 // Create a new Router object to handle routes related to product operations
 const productRouter = express.Router();
+productRouter.post(
+  "/edit",
+  adminAuth,
+  upload.fields([
+    { name: "image1", maxCount: 1 },
+    { name: "image2", maxCount: 1 },
+    { name: "image3", maxCount: 1 },
+    { name: "image4", maxCount: 1 },
+  ]),
+  editProduct
+);
 
 /* [ℹ️] Some APIs use POST for all write operations(insert, update, delete),
  including deletions, to maintain consistency in their API design.*/
@@ -17,6 +32,8 @@ const productRouter = express.Router();
 // Define the route for removing an existing product, which triggers the removeProduct function
 // Define the route for retrieving a single product, which triggers the getSingleProduct function
 // Define the route for listing all products, which triggers the listProducts function
+productRouter.post("/recommend", recommendProducts);
+productRouter.post("/recommend-on-checkout", recommendOnCheckout);
 productRouter.post(
   "/add",
   adminAuth,
@@ -26,7 +43,7 @@ productRouter.post(
     { name: "image3", maxCount: 1 },
     { name: "image4", maxCount: 1 },
   ]),
-  addProduct,
+  addProduct
 );
 productRouter.post("/remove", adminAuth, removeProduct);
 productRouter.post("/single", getSingleProduct);

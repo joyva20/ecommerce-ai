@@ -36,11 +36,11 @@ const Footer = () => {
                   alt="phone"
                   className="h-6 w-6"
                 />
-                <p>+98-9xx xx xx xxx</p>
+                <p>+62 812 1194 9087</p>
               </li>
               <li>
                 <Link
-                  to="mailto:navidzareswe@gmail.com"
+                  to="mailto:joyvatamam@gmail.com"
                   className="flex gap-2 text-base no-underline"
                 >
                   <img
@@ -48,12 +48,12 @@ const Footer = () => {
                     alt="Email"
                     className="h-6 w-6"
                   />
-                  NavidZareSWE@gmail.com
+                  joyvatamam@gmail.com
                 </Link>
               </li>
               <li>
                 <Link
-                  to="https://github.com/NavidZareSWE"
+                  to="https://github.com/joyva20"
                   className="flex gap-2 text-base no-underline"
                 >
                   <img
@@ -61,20 +61,20 @@ const Footer = () => {
                     alt="Email"
                     className="h-6 w-6"
                   />
-                  @NavidZareSWE
+                  @joyva20
                 </Link>
               </li>
               <li>
                 <Link
-                  to="https://t.me/NavidZareSWE"
+                  to="https://instagram/anyproblemwithdependencies"
                   className="flex gap-2 text-base no-underline"
                 >
                   <img
-                    src="/telegram.svg"
+                    src="/instagram.svg"
                     alt="Email"
                     className="h-6 w-6"
                   />
-                  @NavidZareSWE
+                  @anyproblemwithdependencies
                 </Link>
               </li>
             </ul>
@@ -85,10 +85,10 @@ const Footer = () => {
           <p className="py=5 text-center text-sm">
             CopyRight© 2024@Ecommerce - All rights Reserved by{" "}
             <Link
-              to={"https://github.com/NavidZareSWE"}
+              to={"https://github.com/joyva20"}
               className="font-semibold text-blue-950"
             >
-              @NavidZareSWE
+              @joyva20
             </Link>
           </p>
         </div>
