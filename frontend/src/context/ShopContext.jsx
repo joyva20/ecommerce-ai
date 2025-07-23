@@ -20,6 +20,10 @@ const ShopContextProvider = (props) => {
   const navigate = useNavigate();
 
   const addToCart = async (itemid, size) => {
+    if (!token) {
+      toast.error("You should login/create account first");
+      return;
+    }
     if (!size) {
       toast.error("Select Product Size");
       return;
@@ -36,22 +40,19 @@ const ShopContextProvider = (props) => {
       cartData[itemid][size] = 1;
     }
     setCartItems(cartData);
-
-    if (token) {
-      try {
-        const response = await axios.post(
-          BACKEND_URL + "/api/cart/add",
-          { itemid, size },
-          {
-            headers: { token },
-          },
-        );
-        if (response.data.success) toast.success(response.data.message);
-        else toast.error(response.data.message);
-      } catch (error) {
-        console.error(error);
-        toast.error(error.message);
-      }
+    try {
+      const response = await axios.post(
+        BACKEND_URL + "/api/cart/add",
+        { itemid, size },
+        {
+          headers: { token },
+        },
+      );
+      if (response.data.success) toast.success(response.data.message);
+      else toast.error(response.data.message);
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
     }
   };
   const getCartCount = () => {

@@ -124,6 +124,11 @@ const Cart = () => {
           <div className="w-full text-end">
             <button
               onClick={() => {
+                if (!localStorage.getItem("token")) {
+                  toast.error("You should login/create account first");
+                  navigate("/login");
+                  return;
+                }
                 let navPath = "/place-order";
                 if (cartData.length <= 0) {
                   navPath = "/cart";

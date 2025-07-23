@@ -18,7 +18,7 @@ const Footer = () => {
               feel free to contact us anytime. Happy shopping!
             </p>
           </div>
-          <div>
+          {/* <div>
             <p className="mb-5 text-xl font-medium">COMPANY</p>
             <ul className="flex flex-col gap-1 text-gray-600">
               <li>Home</li>
@@ -26,7 +26,7 @@ const Footer = () => {
               <li>Delivery</li>
               <li>Privacy Policy</li>
             </ul>
-          </div>
+          </div> */}
           <div>
             <p className="mb-5 text-xl font-medium">GET IN TOUCH</p>
             <ul className="flex flex-col gap-3 text-gray-600">
@@ -83,7 +83,7 @@ const Footer = () => {
         <div className="mb-5">
           <hr className={style.hr} />
           <p className="py=5 text-center text-sm">
-            CopyRight© 2024@Ecommerce - All rights Reserved by{" "}
+            CopyRight© 2025@Ecommerce - All rights Reserved by{" "}
             <Link
               to={"https://github.com/joyva20"}
               className="font-semibold text-blue-950"

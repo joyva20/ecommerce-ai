@@ -54,7 +54,7 @@ import p_img50 from "./p_img50.png";
 import p_img51 from "./p_img51.png";
 import p_img52 from "./p_img52.png";
 
-import logo from "./logo.png";
+import logo from "./logo1.png";
 import hero_img from "./hero_img.png";
 import hero_img_2 from "./hero_img_2.png";
 import hero_img_3 from "./hero_img_3.jpg";

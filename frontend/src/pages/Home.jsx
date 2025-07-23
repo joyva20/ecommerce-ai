@@ -1,4 +1,4 @@
-import BestSeller from "../components/BestSeller";
+import ForYou from "../components/ForYou";
 import Hero from "../components/Hero";
 import LatestCollection from "../components/LatestCollection";
 import NewsletterBox from "../components/NewsletterBox";
@@ -9,7 +9,7 @@ const Home = () => {
     <div>
       <Hero />
       <LatestCollection />
-      <BestSeller />
+      <ForYou />
       <OurPolicy />
       <NewsletterBox />
     </div>

@@ -6,6 +6,7 @@ import {
   allOrders,
   userOrders,
   updateStatus,
+  removeOrder,
 } from "../controllers/orderController.js";
 import adminAuth from "../middleware/adminauth.js";
 import authUser from "../middleware/auth.js";
@@ -18,6 +19,7 @@ const orderRouter = express.Router();
 // Route to update the status of an order for admin
 orderRouter.post("/list", adminAuth, allOrders);
 orderRouter.post("/status", adminAuth, updateStatus);
+orderRouter.post("/remove", adminAuth, removeOrder);
 
 // Payment Features
 // Route to place a new order for COD

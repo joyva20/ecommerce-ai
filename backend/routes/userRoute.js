@@ -3,6 +3,9 @@ import {
   loginUser,
   registerUser,
   adminLogin,
+  removeUser,
+  listUsers,
+  editUser,
 } from "../controllers/userController.js";
 
 // Create a new Router object to handle routes related to user operations
@@ -14,5 +17,8 @@ const userRouter = express.Router();
 userRouter.post("/register", registerUser);
 userRouter.post("/login", loginUser);
 userRouter.post("/admin", adminLogin);
+userRouter.post("/remove", removeUser);
+userRouter.get("/list", listUsers);
+userRouter.post("/edit", editUser);
 
 export default userRouter;

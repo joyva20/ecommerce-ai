@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import Home from "./pages/Home";
+import MyProfile from "./pages/MyProfile";
+import RecommendationPage from "./pages/RecommendationPage";
 import Collection from "./pages/Collection";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -29,6 +31,8 @@ const pages = {
   login: { path: "/login", element: <Login /> },
   placeOrders: { path: "/place-order", element: <PlaceOrders /> },
   orders: { path: "/orders", element: <Orders /> },
+  myProfile: { path: "/my-profile", element: <MyProfile /> },
+  recommendation: { path: "/recommendation", element: <RecommendationPage /> },
 };
 
 const App = () => {
