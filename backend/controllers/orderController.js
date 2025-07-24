@@ -1,3 +1,14 @@
+// Hapus satu order berdasarkan id
+const removeOrder = async (req, res) => {
+  try {
+    const { id } = req.body;
+    if (!id) return res.json({ success: false, message: "Order ID required" });
+    await orderModel.findByIdAndDelete(id);
+    res.json({ success: true, message: "Order deleted" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 // Placing orders using COD method
@@ -43,7 +54,8 @@ const placeOrderTejarat = async (req, res) => {
 // All Orders data for Admin Panel
 const allOrders = async (req, res) => {
   try {
-    const orders = await orderModel.find({});
+    // Ambil semua order dari database untuk admin panel
+    const orders = await orderModel.find({}).populate('userID', 'name email');
     res.json({ success: true, orders });
   } catch (error) {
     console.error(error);
@@ -81,4 +93,5 @@ export {
   allOrders,
   userOrders,
   updateStatus,
+  removeOrder,
 };

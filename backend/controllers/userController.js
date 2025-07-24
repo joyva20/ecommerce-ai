@@ -1,3 +1,26 @@
+// Edit user (name, email)
+const editUser = async (req, res) => {
+  try {
+    const { id, name, email } = req.body;
+    if (!id) return res.json({ success: false, message: "User ID required" });
+    const update = {};
+    if (name) update.name = name;
+    if (email) update.email = email;
+    await userModel.findByIdAndUpdate(id, update);
+    res.json({ success: true });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+// Ambil semua user (untuk admin)
+const listUsers = async (req, res) => {
+  try {
+    const users = await userModel.find({}, { password: 0 });
+    res.json({ success: true, users });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
 import userModel from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -122,4 +145,16 @@ const adminLogin = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-export { loginUser, registerUser, adminLogin };
+// Hapus user
+const removeUser = async (req, res) => {
+  try {
+    const { id } = req.body;
+    if (!id) return res.json({ success: false, message: "User ID required" });
+    await userModel.findByIdAndDelete(id);
+    res.json({ success: true, message: "User deleted" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { loginUser, registerUser, adminLogin, removeUser, listUsers, editUser };

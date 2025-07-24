@@ -65,7 +65,7 @@ const List = ({ token }) => {
               <p>{item.category}</p>
               <p>
                 {currency}
-                {item.price}
+                {Number(item.price).toLocaleString('id-ID')}
               </p>
               <p
                 onClick={() => setEditId(item._id)}

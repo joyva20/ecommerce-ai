@@ -2,15 +2,21 @@ import jwt from "jsonwebtoken";
 
 const adminAuth = async (req, res, callback) => {
   try {
-    const { token } = req.headers;
+    // Ambil token dari header Authorization: Bearer <token> atau header token
+    let token = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    } else if (req.headers.token) {
+      token = req.headers.token;
+    }
     if (!token) {
       return res.json({
         success: false,
         message: "Not authorized, Login Again",
       });
     }
-    // Decode the token using the secret key stored in the environment variable and verify its authenticity
-    //Synchronously verify given token using a secret or a public key to get a decoded token token - JWT string to verify secretOrPublicKey - Either the secret for HMAC algorithms, or the PEM encoded public key for RSA and ECDSA. [options] - Options for the verification returns - The decoded token.
+    // Decode dan verifikasi token
     const token_decode = jwt.verify(token, process.env.JWT_SECRET);
     if (token_decode !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
       return res.json({

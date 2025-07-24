@@ -58,6 +58,7 @@ const editProduct = async (req, res) => {
 };
 // Content-based filtering recommendation endpoint
 // Example: recommend products with similar category or subCategory
+import fs from "fs";
 const recommendProducts = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -66,13 +67,25 @@ const recommendProducts = async (req, res) => {
       return res.json({ success: false, message: "Product not found" });
     }
     // Find products with same category or subCategory (simple content-based)
-    const recommended = await productModel.find({
+    const candidates = await productModel.find({
       $or: [
         { category: baseProduct.category },
         { subCategory: baseProduct.subCategory }
       ],
       _id: { $ne: productId }
     }).limit(10);
+    // Simple similarity score: +0.5 jika category sama, +0.5 jika subCategory sama
+    const recommended = candidates.map(prod => {
+      let score = 0;
+      if (prod.category === baseProduct.category) score += 0.5;
+      if (prod.subCategory === baseProduct.subCategory) score += 0.5;
+      return { ...prod.toObject(), similarityScore: score };
+    });
+    // Log laporan JSON
+    fs.writeFileSync(
+      "./backend/recommendation_report.json",
+      JSON.stringify({ type: "content-based", baseProduct: productId, recommended, time: new Date() }, null, 2)
+    );
     res.json({ success: true, recommended });
   } catch (error) {
     console.error(error);
@@ -91,18 +104,45 @@ const recommendOnCheckout = async (req, res) => {
     }
     // Ambil semua productId dari items yang pernah dibeli
     const boughtProductIds = orders.flatMap(order => order.items.map(item => item._id));
-    // Ambil kategori/subKategori dari produk yang pernah dibeli
+    // Ambil semua kategori dan subKategori unik dari seluruh produk yang pernah dibeli user
     const boughtProducts = await productModel.find({ _id: { $in: boughtProductIds } });
+    // Hitung dominasi kategori (misal: men vs women)
+    const categoryCount = boughtProducts.reduce((acc, prod) => {
+      acc[prod.category] = (acc[prod.category] || 0) + 1;
+      return acc;
+    }, {});
+    // Cari kategori dominan
+    const dominantCategory = Object.entries(categoryCount).sort((a, b) => b[1] - a[1])[0]?.[0];
     const categories = [...new Set(boughtProducts.map(p => p.category))];
     const subCategories = [...new Set(boughtProducts.map(p => p.subCategory))];
-    // Rekomendasikan produk dengan kategori/subKategori yang sama, tapi belum dibeli
-    const recommended = await productModel.find({
+    // Rekomendasikan produk yang match kategori/subKategori, exclude yang sudah dibeli
+    const candidates = await productModel.find({
       $or: [
         { category: { $in: categories } },
         { subCategory: { $in: subCategories } }
       ],
       _id: { $nin: boughtProductIds }
-    }).limit(10);
+    });
+    // Skor: kategori dominan dapat skor lebih tinggi
+    const recommended = candidates.map(prod => {
+      let score = 0;
+      score += boughtProducts.filter(bp => bp.category === prod.category).length;
+      score += boughtProducts.filter(bp => bp.subCategory === prod.subCategory).length;
+      // Tambahkan skor ekstra jika kategori produk adalah kategori dominan
+      if (prod.category === dominantCategory) score += 2;
+      const maxScore = boughtProducts.length * 2 + 2; // +2 untuk bonus dominan
+      const similarityScore = maxScore > 0 ? score / maxScore : 0;
+      return { ...prod.toObject(), similarityScore };
+    });
+    // Urutkan rekomendasi berdasarkan skor tertinggi
+    recommended.sort((a, b) => b.similarityScore - a.similarityScore);
+    // Log laporan JSON (fix path)
+    const path = require('path');
+    const reportPath = path.join(__dirname, '../recommendation_report.json');
+    fs.writeFileSync(
+      reportPath,
+      JSON.stringify({ type: "checkout-based", userId, recommended, time: new Date() }, null, 2)
+    );
     res.json({ success: true, recommended });
   } catch (error) {
     console.error(error);

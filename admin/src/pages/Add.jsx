@@ -22,13 +22,12 @@ const Add = ({ token }) => {
     e.preventDefault();
 
     try {
-      // Create a new instance of FormData, an object that can be used to
-      // construct a set of key/value pairs representing form fields and their
-      // values, which can be easily sent using XMLHttpRequest or the fetch API
+      // Convert price string with dot to number (e.g. "109.900" => 109900)
+      const numericPrice = price.replace(/\./g, "");
       const formData = new FormData();
       formData.append("name", name);
       formData.append("description", description);
-      formData.append("price", price);
+      formData.append("price", numericPrice);
       formData.append("category", category);
       formData.append("subCategory", subCategory);
       formData.append("bestseller", bestseller);
@@ -191,14 +190,17 @@ const Add = ({ token }) => {
           <div className="flex items-center gap-2">
             <span>{currency}</span>
             <input
-              onChange={(e) => setPrice(e.target.value)}
-              value={price < 0 ? 0 : price}
-              min={0}
-              max={999_999}
+              onChange={(e) => {
+                // Only allow numbers and dot
+                const val = e.target.value.replace(/[^\d.]/g, "");
+                setPrice(val);
+              }}
+              value={price}
               className="w-full px-3 py-2 sm:w-[120px]"
-              type="number"
+              type="text"
               placeholder="0.00"
               required
+              inputMode="decimal"
             />
           </div>
         </div>

@@ -4,9 +4,11 @@ import "dotenv/config";
 import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
 import userRouter from "./routes/userRoute.js";
+import userProfileRoute from "./routes/userProfileRoute.js";
 import productRouter from "./routes/productRoute.js";
 import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
+import recommendationRoute from "./routes/recommendationRoute.js";
 
 /**********************************
  ********** App Config ************
@@ -32,9 +34,13 @@ app.use(cors());
 // Mount the cartRouter at the '/api/cart' path, so all routes defined in cartRouter will be prefixed with '/api/cart'
 // Mount the orderRouter at the '/api/order' path, so all routes defined in orderRouter will be prefixed with '/api/order'
 app.use("/api/user", userRouter);
+app.use("/api/user", userProfileRoute);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/recommendations", recommendationRoute);
+import adminRoute from "./routes/adminRoute.js";
+app.use("/api/admin", adminRoute);
 // Define the root endpoint '/' which responds with a simple message to indicate that the API is working
 app.get("/", (req, res) => {
   res.send("API is Working");
