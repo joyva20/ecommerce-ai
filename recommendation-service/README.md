@@ -1,8 +1,17 @@
-# Recommendation Service
+# 🤖 AI Recommendation Service
 
-AI-powered product recommendation system using content-based filtering.
+## 📋 Overview
 
-## Features
+Full-featured ML-powered recommendation engine untuk e-commerce clothing website. Service ini menggunakan **TF-IDF + Cosine Similarity** untuk content-based filtering dan membaca data langsung dari file CSV.
+
+## ✨ Key Features
+
+- **📊 Real Data**: Membaca langsung dari `clothing.csv` (111+ produk)
+- **🤖 ML Algorithm**: TF-IDF vectorization + Cosine similarity
+- **🔄 Fallback System**: Otomatis fallback ke implementasi sederhana jika ML libraries tidak tersedia
+- **📈 Performance Grading**: Automatic model evaluation dengan scoring system
+- **🌐 REST API**: Complete endpoints untuk frontend integration
+- **⚡ Fast Response**: Optimized untuk real-time recommendations
 
 - **Content-Based Filtering**: Recommends products based on product features (name, category, description, etc.)
 - **Category Recommendations**: Get popular products from specific categories

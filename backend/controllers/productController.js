@@ -50,15 +50,31 @@ const editProduct = async (req, res) => {
       },
       { new: true }
     );
+    
+    // Sync to recommendation service after update
+    await syncToRecommendationService();
+    
     res.json({ success: true, message: "Product updated successfully", product: updated });
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
+// Import statements should be at the top
+import { v2 as cloudinary } from "cloudinary";
+import productModel from "../models/productModel.js";
+import orderModel from "../models/orderModel.js";
+import axios from "axios";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// ES modules equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Content-based filtering recommendation endpoint
 // Example: recommend products with similar category or subCategory
-import fs from "fs";
 const recommendProducts = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -92,65 +108,37 @@ const recommendProducts = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-import orderModel from "../models/orderModel.js";
-// Rekomendasi berdasarkan riwayat checkout user
-const recommendOnCheckout = async (req, res) => {
+// Rekomendasi berdasarkan riwayat checkout user - DEPRECATED
+// Use /api/recommendations/checkout endpoint instead
+// This function is kept for backward compatibility but should not be used
+
+// Helper function to sync products to recommendation service
+const syncToRecommendationService = async () => {
   try {
-    const { userId } = req.body;
-    // Cari semua order user
-    const orders = await orderModel.find({ userID: userId });
-    if (!orders.length) {
-      return res.json({ success: false, message: "No orders found for user" });
-    }
-    // Ambil semua productId dari items yang pernah dibeli
-    const boughtProductIds = orders.flatMap(order => order.items.map(item => item._id));
-    // Ambil semua kategori dan subKategori unik dari seluruh produk yang pernah dibeli user
-    const boughtProducts = await productModel.find({ _id: { $in: boughtProductIds } });
-    // Hitung dominasi kategori (misal: men vs women)
-    const categoryCount = boughtProducts.reduce((acc, prod) => {
-      acc[prod.category] = (acc[prod.category] || 0) + 1;
-      return acc;
-    }, {});
-    // Cari kategori dominan
-    const dominantCategory = Object.entries(categoryCount).sort((a, b) => b[1] - a[1])[0]?.[0];
-    const categories = [...new Set(boughtProducts.map(p => p.category))];
-    const subCategories = [...new Set(boughtProducts.map(p => p.subCategory))];
-    // Rekomendasikan produk yang match kategori/subKategori, exclude yang sudah dibeli
-    const candidates = await productModel.find({
-      $or: [
-        { category: { $in: categories } },
-        { subCategory: { $in: subCategories } }
-      ],
-      _id: { $nin: boughtProductIds }
+    // Get all products from MongoDB
+    const products = await productModel.find({});
+    
+    // Transform to recommendation service format
+    const transformedProducts = products.map(product => ({
+      id: product._id.toString(),
+      nama_pakaian: product.name,
+      categories: product.category.toLowerCase(),
+      type: product.subCategory.toLowerCase()
+    }));
+    
+    // Send to recommendation service
+    await axios.post('http://localhost:5001/sync/products', {
+      products: transformedProducts
+    }, {
+      timeout: 5000
     });
-    // Skor: kategori dominan dapat skor lebih tinggi
-    const recommended = candidates.map(prod => {
-      let score = 0;
-      score += boughtProducts.filter(bp => bp.category === prod.category).length;
-      score += boughtProducts.filter(bp => bp.subCategory === prod.subCategory).length;
-      // Tambahkan skor ekstra jika kategori produk adalah kategori dominan
-      if (prod.category === dominantCategory) score += 2;
-      const maxScore = boughtProducts.length * 2 + 2; // +2 untuk bonus dominan
-      const similarityScore = maxScore > 0 ? score / maxScore : 0;
-      return { ...prod.toObject(), similarityScore };
-    });
-    // Urutkan rekomendasi berdasarkan skor tertinggi
-    recommended.sort((a, b) => b.similarityScore - a.similarityScore);
-    // Log laporan JSON (fix path)
-    const path = require('path');
-    const reportPath = path.join(__dirname, '../recommendation_report.json');
-    fs.writeFileSync(
-      reportPath,
-      JSON.stringify({ type: "checkout-based", userId, recommended, time: new Date() }, null, 2)
-    );
-    res.json({ success: true, recommended });
+    
+    console.log(`✅ Synced ${transformedProducts.length} products to recommendation service`);
   } catch (error) {
-    console.error(error);
-    res.json({ success: false, message: error.message });
+    console.log(`⚠️ Could not sync to recommendation service: ${error.message}`);
+    // Don't throw error, just log it
   }
 };
-import { v2 as cloudinary } from "cloudinary";
-import productModel from "../models/productModel.js";
 // Function for add product
 const addProduct = async (req, res) => {
   /* Creating a middleware using multer, so if we send any file as form data,
@@ -219,6 +207,9 @@ const addProduct = async (req, res) => {
     } else {
       await product.save();
       console.log("Product saved successfully");
+      
+      // Sync to recommendation service
+      await syncToRecommendationService();
     }
     res.json({ success: true, message: "New product has been added." });
   } catch (error) {
@@ -244,6 +235,10 @@ const removeProduct = async (req, res) => {
     // Await the deletion of a product document from the database by its
     // unique identifier (ID) provided in the request body
     await productModel.findByIdAndDelete(req.body.id);
+    
+    // Sync to recommendation service after deletion
+    await syncToRecommendationService();
+    
     res.json({ success: true, message: `Product has been removed` });
   } catch (error) {
     console.error(error);
@@ -262,4 +257,4 @@ const getSingleProduct = async (req, res) => {
   }
 };
 
-export { addProduct, listProducts, removeProduct, getSingleProduct, recommendProducts, recommendOnCheckout, editProduct };
+export { addProduct, listProducts, removeProduct, getSingleProduct, recommendProducts, editProduct };

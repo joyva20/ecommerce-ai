@@ -1,5 +1,6 @@
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
+import CheckoutRecommendations from "../components/CheckoutRecommendations";
 import { assets } from "../assets/assets";
 import { useContext, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
@@ -17,6 +18,7 @@ const PlaceOrder = () => {
     delivery_fee,
     BACKEND_URL,
     products,
+    addToCart
   } = useContext(ShopContext);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [formData, setFormData] = useState({
@@ -36,6 +38,28 @@ const PlaceOrder = () => {
     const value = e.target.value;
     // Updating form data by maintaining the previous state and setting a new value for a specific field
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Get cart items for recommendations
+  const getCartItemsForRecommendations = () => {
+    let orderItems = [];
+    for (const items in cartItems) {
+      for (const item in cartItems[items]) {
+        if (cartItems[items][item] > 0) {
+          const itemInfo = products.find((product) => product._id === items);
+          if (itemInfo) {
+            orderItems.push({
+              _id: itemInfo._id,
+              name: itemInfo.name,
+              category: itemInfo.category,
+              price: itemInfo.price,
+              quantity: cartItems[items][item]
+            });
+          }
+        }
+      }
+    }
+    return orderItems;
   };
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -287,6 +311,12 @@ const PlaceOrder = () => {
           </div>
         </div>
       </div>
+
+      {/* AI Recommendations Section */}
+      <CheckoutRecommendations 
+        cartItems={getCartItemsForRecommendations()} 
+        onAddToCart={addToCart}
+      />
     </form>
   );
 };

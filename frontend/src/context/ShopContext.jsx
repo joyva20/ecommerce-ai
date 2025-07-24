@@ -10,7 +10,11 @@ export const ShopContext = createContext();
 const ShopContextProvider = (props) => {
   const currency = "Rp ";
   const delivery_fee = 10;
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  
+  // Debug log untuk memastikan BACKEND_URL terbaca
+  console.log('🔧 ShopContext BACKEND_URL:', BACKEND_URL);
+  
   const [search, setSearch] = useState(``);
   const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState({});
