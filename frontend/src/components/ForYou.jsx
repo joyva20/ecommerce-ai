@@ -12,7 +12,7 @@ const ForYou = () => {
 
   useEffect(() => {
     const fetchRecommendation = async () => {
-      console.log('🏠 ForYou: Starting recommendation fetch...');
+      console.log('🏠 ForYou: Starting dominance-based recommendation fetch...');
       console.log('🏠 ForYou: BACKEND_URL =', BACKEND_URL);
       console.log('🏠 ForYou: Token =', !!token);
       
@@ -33,35 +33,19 @@ const ForYou = () => {
           return;
         }
         
-        console.log('🏠 ForYou: Checking user order history...');
-        const orderRes = await axios.post(
-          BACKEND_URL + "/api/order/userorders",
-          {},
+        console.log('🏠 ForYou: Getting personalized recommendations with dominance logic...');
+        const recRes = await axios.get(
+          BACKEND_URL + "/api/recommendations/personalized?limit=5",
           { headers: { token } }
         );
         
-        console.log('🏠 ForYou: Order response:', orderRes.data.success, orderRes.data.orders?.length);
+        console.log('🏠 ForYou: Dominance response:', recRes.data.success, recRes.data.recommendations?.length);
+        console.log('🏠 ForYou: Dominance info:', recRes.data.dominance);
         
-        if (orderRes.data.success && orderRes.data.orders.length > 0) {
-          setHasOrder(true);
-          
-          const latestOrder = orderRes.data.orders[0];
-          const cartItemsForAPI = latestOrder.items.map(item => ({
-            name: item.name,
-            category: item.category || 'General',
-            id: item._id
-          }));
-
-          console.log('🏠 ForYou: Getting recommendations for cart items:', cartItemsForAPI);
-          const recRes = await axios.post(
-            BACKEND_URL + "/api/recommendations/checkout",
-            { cartItems: cartItemsForAPI },
-            { headers: { token } }
-          );
-          
-          console.log('🏠 ForYou: Recommendation response:', recRes.data.success, recRes.data.recommendations?.length);
-          
-          if (recRes.data.success && recRes.data.recommendations.length > 0) {
+        if (recRes.data.success) {
+          if (recRes.data.recommendations.length > 0) {
+            setHasOrder(true);
+            
             // Map ML recommendations to actual products from database
             const mappedRecommendations = [];
             
@@ -71,7 +55,7 @@ const ForYou = () => {
             if (availableProducts.data.success) {
               console.log('📦 Available products for mapping:', availableProducts.data.products.length);
               
-              for (const rec of recRes.data.recommendations.slice(0, 4)) {
+              for (const rec of recRes.data.recommendations) {
                 // Try to find matching product in products list
                 const matchingProduct = availableProducts.data.products.find(p => 
                   p.name.toLowerCase().includes(rec.nama_pakaian.toLowerCase()) ||
@@ -84,8 +68,8 @@ const ForYou = () => {
                   mappedRecommendations.push({
                     ...matchingProduct,
                     similarity_score: rec.similarity_score,
-                    match_percentage: rec.match_percentage,
-                    based_on: rec.based_on
+                    based_on: rec.based_on,
+                    dominance_match: rec.matches_dominance
                   });
                 } else {
                   console.log('❌ ForYou no match for:', rec.nama_pakaian);
@@ -94,33 +78,18 @@ const ForYou = () => {
               
               console.log('🏠 ForYou: Final mapped recommendations:', mappedRecommendations.length);
               setRecommended(mappedRecommendations);
-              
-              // If no matches, show some general products as fallback
-              if (mappedRecommendations.length === 0) {
-                console.log('🔄 ForYou: No matches, showing general products');
-                const generalProducts = availableProducts.data.products
-                  .filter(p => p.bestseller || Math.random() > 0.7)
-                  .slice(0, 4);
-                setRecommended(generalProducts);
-              }
             } else {
               console.log('⚠️ ForYou: Failed to get products list');
               setRecommended([]);
             }
           } else {
-            console.log('🏠 ForYou: No recommendations found - showing bestsellers');
-            // Fallback to products from context if available
-            if (products && products.length > 0) {
-              const fallbackProducts = products
-                .filter(p => p.bestseller || Math.random() > 0.7)
-                .slice(0, 4);
-              console.log('🔄 ForYou: Using context products as fallback:', fallbackProducts.length);
-              setRecommended(fallbackProducts);
-            } else {
-              setRecommended([]);
-            }
+            // User has order history but no matching dominant recommendations
+            console.log('🏠 ForYou: No recommendations match user dominance');
+            setHasOrder(true);
+            setRecommended([]);
           }
         } else {
+          // No purchase history or authentication failed
           console.log('🏠 ForYou: User has no order history');
           setHasOrder(false);
           setRecommended([]);
@@ -153,32 +122,24 @@ const ForYou = () => {
         <div className="grid grid-cols-2 gap-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {recommended.map((item, index) => (
             <div key={item._id || index} className="relative">
-              {/* Check if it's a real product or raw recommendation */}
-              {item.image ? (
-                <ProductItem
-                  id={item._id}
-                  image={item.image}
-                  name={item.name}
-                  price={item.price}
-                />
-              ) : (
-                /* Raw recommendation display */
-                <div className="border rounded-lg p-4 bg-gray-50">
-                  <div className="w-full h-32 bg-gray-200 rounded mb-2 flex items-center justify-center">
-                    <span className="text-gray-500 text-xs">No Image</span>
-                  </div>
-                  <h3 className="font-medium text-xs mb-1">{item.nama_pakaian}</h3>
-                  <p className="text-xs text-gray-600">{item.categories}</p>
-                </div>
+              <ProductItem
+                id={item._id}
+                image={item.image}
+                name={item.name}
+                price={item.price}
+              />
+              
+              {/* Show dominance match indicator */}
+              {item.dominance_match && (
+                <span className="absolute top-2 left-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full shadow">
+                  Perfect Match
+                </span>
               )}
               
               {/* Show similarity score */}
-              {(item.match_percentage || item.similarity_score) && (
+              {item.similarity_score && (
                 <span className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full shadow">
-                  {item.match_percentage 
-                    ? `${item.match_percentage.toFixed(0)}%`
-                    : `${((item.similarity_score || 0) * 100).toFixed(0)}%`
-                  }
+                  {((item.similarity_score || 0) * 100).toFixed(0)}%
                 </span>
               )}
             </div>
@@ -187,9 +148,9 @@ const ForYou = () => {
       ) : (
         <div className="text-center py-8 text-gray-500">
           {hasOrder
-            ? "Belum ada rekomendasi produk untuk Anda."
+            ? "Sedang memproses rekomendasi untuk Anda. Silakan refresh halaman atau checkout produk lain untuk mendapatkan rekomendasi yang lebih baik."
             : token 
-              ? "Sistem rekomendasi sedang dalam pengembangan. Silakan checkout untuk mendapatkan rekomendasi personal!"
+              ? "Checkout sekarang untuk mendapatkan rekomendasi personal berdasarkan dominasi kategori dan tipe produk favorit Anda!"
               : "Login terlebih dahulu untuk mendapatkan rekomendasi personal!"
           }
         </div>

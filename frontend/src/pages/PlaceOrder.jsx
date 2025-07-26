@@ -119,15 +119,17 @@ const PlaceOrder = () => {
   };
 
   return (
-    <form
-      onSubmit={onSubmitHandler}
-      className="flex min-h-[80vh] flex-col justify-between gap-4 border-t pt-5 sm:flex-row sm:pt-14"
-    >
-      {/*----------------------- Left Side -----------------------*/}
-      <div className="flex w-full flex-col gap-4 sm:max-w-[480px]">
-        <div className="my-3 text-xl sm:text-2xl">
-          <Title text1={"DELIVERY"} text2={"INFORMATION"} />
-        </div>
+    <div className="min-h-[80vh] border-t pt-5 sm:pt-14">
+      {/* Main Form Section */}
+      <form
+        onSubmit={onSubmitHandler}
+        className="flex flex-col justify-between gap-4 sm:flex-row"
+      >
+        {/*----------------------- Left Side -----------------------*/}
+        <div className="flex w-full flex-col gap-4 sm:max-w-[480px]">
+          <div className="my-3 text-xl sm:text-2xl">
+            <Title text1={"DELIVERY"} text2={"INFORMATION"} />
+          </div>
         <div className="flex gap-3">
           <input
             className="w-full rounded border border-gray-300 bg-slate-100 px-3.5 py-1.5"
@@ -311,13 +313,14 @@ const PlaceOrder = () => {
           </div>
         </div>
       </div>
+      </form>
 
-      {/* AI Recommendations Section */}
+      {/* AI Recommendations Section - Full Width Below */}
       <CheckoutRecommendations 
         cartItems={getCartItemsForRecommendations()} 
         onAddToCart={addToCart}
       />
-    </form>
+    </div>
   );
 };
 
