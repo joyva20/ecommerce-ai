@@ -44,6 +44,4 @@ This project is a Full-Stack E-commerce Website built using the MERN stack (Mong
 
 
 
-# Links
 
-[Figma File Design Link - Google Drive](https://drive.google.com/file/d/1Fc5Hrv7dbnu4nH_Jmyu0Q6MoIBmPuCf6/view?usp=drive_link)
