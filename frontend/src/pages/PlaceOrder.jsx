@@ -72,7 +72,7 @@ const PlaceOrder = () => {
               products.find((product) => product._id === items),
             );
             if (itemInfo) itemInfo.size = item;
-            itemInfo.quanitity = cartItems[items][item];
+            itemInfo.quantity = cartItems[items][item]; // Fixed typo: quanitity -> quantity
             orderItems.push(itemInfo);
           }
       let orderData = {

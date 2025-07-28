@@ -9,6 +9,7 @@ import productRouter from "./routes/productRoute.js";
 import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import recommendationRoute from "./routes/recommendationRoute.js";
+import adminRoute from "./routes/adminRoute.js";
 
 /**********************************
  ********** App Config ************
@@ -39,7 +40,6 @@ app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/recommendations", recommendationRoute);
-import adminRoute from "./routes/adminRoute.js";
 app.use("/api/admin", adminRoute);
 // Define the root endpoint '/' which responds with a simple message to indicate that the API is working
 app.get("/", (req, res) => {
