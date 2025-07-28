@@ -20,6 +20,7 @@ const ShopContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [productsDB, setProductsDB] = useState([]);
   const [token, setToken] = useState("");
+  const [profilePhoto, setProfilePhoto] = useState(null);
   //Programmatic Redirection: Navigate to different routes based on application state or conditions.
   const navigate = useNavigate();
 
@@ -163,6 +164,32 @@ const ShopContextProvider = (props) => {
     }
   }, []);
 
+  // Refresh profile photo function
+  const refreshProfilePhoto = async () => {
+    if (token) {
+      try {
+        const response = await axios.get(`${BACKEND_URL}/api/user-profile/profile`, {
+          headers: { token }
+        });
+        if (response.data && response.data.photo) {
+          setProfilePhoto(response.data.photo);
+        }
+      } catch (error) {
+        console.error("Error refreshing profile photo:", error);
+      }
+    }
+  };
+
+  // Load profile photo when token changes
+  useEffect(() => {
+    if (token) {
+      refreshProfilePhoto();
+    } else {
+      setProfilePhoto(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
   const value = {
     products: productsDB,
     currency,
@@ -181,6 +208,8 @@ const ShopContextProvider = (props) => {
     BACKEND_URL,
     token,
     setToken,
+    profilePhoto,
+    refreshProfilePhoto,
   };
   return (
     //Wrapping: {props.children}

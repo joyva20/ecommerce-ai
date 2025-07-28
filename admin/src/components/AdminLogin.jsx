@@ -48,7 +48,7 @@ const AdminLogin = ({ setToken }) => {
         />
         <button
           type="submit"
-          className="w-full bg-pink-500 text-white py-2 rounded font-semibold"
+          className="w-full bg-black text-white py-2 rounded font-semibold hover:bg-gray-800 transition duration-300"
           disabled={loading}
         >
           {loading ? "Logging in..." : "Login"}

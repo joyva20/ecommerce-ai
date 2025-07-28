@@ -41,8 +41,41 @@ const Orders = ({ token }) => {
     return () => clearInterval(interval);
   }, [token]);
 
-  const statusHandler = (event, orderId) => {
-    // ...existing code...
+  const statusHandler = async (event, orderId) => {
+    try {
+      const newStatus = event.target.value;
+      
+      // Determine statusState based on status
+      let statusState = "info"; // default
+      if (newStatus === "Cancel") {
+        statusState = "error";
+      } else if (newStatus === "Delivered") {
+        statusState = "success";
+      } else if (newStatus === "Shipped" || newStatus === "Out for delivery") {
+        statusState = "info";
+      }
+      
+      const response = await axios.post(
+        backendURL + "/api/order/status",
+        { 
+          orderId: orderId,
+          status: newStatus,
+          statusState: statusState
+        },
+        { headers: { token } }
+      );
+      
+      if (response.data.success) {
+        toast.success("Order status updated successfully");
+        // Refresh orders list
+        fetchAllOrders();
+      } else {
+        toast.error(response.data.message || "Failed to update status");
+      }
+    } catch (error) {
+      console.error("Status update error:", error);
+      toast.error("Failed to update order status");
+    }
   };
 
   return (
@@ -53,7 +86,7 @@ const Orders = ({ token }) => {
       ) : (
         orders.map((order, index) => (
           <div
-            className="grid grid-cols-1 sm:grid-cols-[0.5fr_2fr_1fr] lg:grid-cols-[0.5fr_2fr_1fr_1fr_1fr] gap-3 items-start border-2 border-gray-200 p-5 md:p-8 my-3 md:my-4 text-xs sm:text-sm text-gray-700"
+            className="grid grid-cols-1 sm:grid-cols-[0.5fr_2fr_1fr] lg:grid-cols-[0.5fr_2fr_1fr_1fr_1fr] gap-3 items-start border-2 border-gray-200 p-5 md:p-8 my-3 md:my-4 text-xs sm:text-sm text-gray-700 rounded-lg shadow-sm"
             key={order._id || index}
           >
             <img
@@ -98,33 +131,42 @@ const Orders = ({ token }) => {
             <p className="text-sm sm:text-[15px]">
               Rp {Number(order.amount).toLocaleString('id-ID')}
             </p>
-            <select
-              onChange={(event) => statusHandler(event, order._id)}
-              value={
-                order.statusState === "error"
-                  ? "Cancel"
-                  : order.statusState === "info"
-                    ? order.status
-                    : order.status
-              }
-              className="p-2 font-semibold"
-            >
-              <option value="OrderPlaced">Order Placed</option>
-              <option value="Packing">Packing</option>
-              <option value="Shipped">Shipped</option>
-              <option value="Out for delivery">Out for delivery</option>
-              <option value="Delivered">Delivered</option>
-              <option value="Cancel">Cancel</option>
-            </select>
-            <button
-              className="mt-2 bg-red-500 text-white px-3 py-1 rounded"
-              onClick={() => {
-                setDeleteOrderId(order._id);
-                setShowDeleteModal(true);
-              }}
-            >
-              Delete
-            </button>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <div 
+                  className={`w-3 h-3 rounded-full ${
+                    order.status === "Delivered" ? "bg-green-500" :
+                    order.status === "Cancel" ? "bg-red-500" :
+                    order.status === "Shipped" || order.status === "Out for delivery" ? "bg-blue-500" :
+                    "bg-yellow-500"
+                  }`}
+                ></div>
+                <span className="text-sm font-medium">
+                  {order.status}
+                </span>
+              </div>
+              <select
+                onChange={(event) => statusHandler(event, order._id)}
+                value={order.status}
+                className="p-2 font-semibold border rounded"
+              >
+                <option value="Order Placed">Order Placed</option>
+                <option value="Packing">Packing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Out for delivery">Out for delivery</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancel">Cancel</option>
+              </select>
+              <button
+                className="mt-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+                onClick={() => {
+                  setDeleteOrderId(order._id);
+                  setShowDeleteModal(true);
+                }}
+              >
+                Delete Order
+              </button>
+            </div>
           </div>
         ))
       )}
@@ -145,18 +187,25 @@ const Orders = ({ token }) => {
                 onClick={async () => {
                   setDeleting(true);
                   try {
-                    await axios.post(
+                    const response = await axios.post(
                       backendURL + "/api/order/delete",
                       { orderId: deleteOrderId },
                       { headers: { token } }
                     );
-                    toast.success("Order berhasil dihapus");
-                    fetchAllOrders();
-                  } catch (err) {
+                    
+                    if (response.data.success) {
+                      toast.success("Order berhasil dihapus");
+                      fetchAllOrders();
+                    } else {
+                      toast.error(response.data.message || "Gagal menghapus order");
+                    }
+                  } catch (error) {
+                    console.error("Delete error:", error);
                     toast.error("Gagal menghapus order");
                   }
                   setDeleting(false);
                   setShowDeleteModal(false);
+                  setDeleteOrderId(null);
                 }}
                 disabled={deleting}
               >

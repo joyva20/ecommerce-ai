@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { ShopContext } from "../context/ShopContext";
 
 const MyProfile = () => {
+  const { token, BACKEND_URL, refreshProfilePhoto } = useContext(ShopContext);
   const [user, setUser] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -11,10 +13,25 @@ const MyProfile = () => {
   const [editPhoto, setEditPhoto] = useState(false);
 
   useEffect(() => {
-    axios.get("/api/user/profile", { withCredentials: true })
-      .then(res => setUser(res.data))
-      .catch(() => setUser(null));
-  }, []);
+    if (!token) {
+      toast.error("Please login to view profile");
+      return;
+    }
+    
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(`${BACKEND_URL}/api/user-profile/profile`, {
+          headers: { token }
+        });
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        toast.error("Failed to load profile");
+      }
+    };
+    
+    fetchProfile();
+  }, [token, BACKEND_URL]);
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -27,17 +44,34 @@ const MyProfile = () => {
     setLoading(true);
     const formData = new FormData();
     formData.append("photo", profilePic);
+    
     try {
-      await axios.post("/api/user/upload-photo", formData, { withCredentials: true });
+      const response = await axios.post(`${BACKEND_URL}/api/user-profile/upload-photo`, formData, {
+        headers: { 
+          token,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
       setEditPhoto(false);
       setProfilePic(null);
       setPreview(null);
-      // Refresh user data
-      const res = await axios.get("/api/user/profile", { withCredentials: true });
-      setUser(res.data);
+      
+      // Refresh user data and navbar profile photo
+      const updatedProfile = await axios.get(`${BACKEND_URL}/api/user-profile/profile`, {
+        headers: { token }
+      });
+      setUser(updatedProfile.data);
+      
+      // Refresh profile photo in navbar
+      if (refreshProfilePhoto) {
+        await refreshProfilePhoto();
+      }
+      
       toast.success("Profile photo updated successfully!");
-    } catch (err) {
-      toast.error("Upload failed");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(error.response?.data?.error || "Upload failed");
     }
     setLoading(false);
   };
@@ -49,40 +83,61 @@ const MyProfile = () => {
   };
 
   const handlePasswordChange = async () => {
-    if (!password) return;
+    if (!password) {
+      toast.error("Please enter a password");
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    
     setLoading(true);
     try {
-      await axios.post("/api/user/change-password", { password }, { withCredentials: true });
+      await axios.post(`${BACKEND_URL}/api/user-profile/change-password`, 
+        { password }, 
+        { headers: { token } }
+      );
       toast.success("Password updated successfully!");
       setPassword("");
-    } catch (err) {
-      toast.error("Update failed");
+    } catch (error) {
+      console.error("Password change error:", error);
+      toast.error(error.response?.data?.error || "Password update failed");
     }
     setLoading(false);
   };
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you sure you want to delete your account?")) return;
+    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
+    
     setLoading(true);
     try {
-      // Kirim request ke backend untuk hapus user
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        import.meta.env.VITE_BACKEND_URL + "/api/user/remove",
-        { id: user._id },
-        { headers: { token } }
-      );
-      if (response.data.success) {
-        localStorage.removeItem("token");
-        window.location.href = "/login";
-      } else {
-        alert(response.data.message || "Delete failed");
-      }
-    } catch (err) {
-      alert("Delete failed");
+      await axios.delete(`${BACKEND_URL}/api/user-profile/delete`, {
+        headers: { token }
+      });
+      
+      localStorage.removeItem("token");
+      toast.success("Account deleted successfully");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error(error.response?.data?.error || "Delete failed");
     }
     setLoading(false);
   };
+
+  if (!token) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Please login to view your profile</p>
+          <a href="/login" className="bg-black text-white px-6 py-2 rounded">
+            Login
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) return <div className="flex justify-center items-center h-64">Loading...</div>;
 
@@ -92,9 +147,12 @@ const MyProfile = () => {
         <h2 className="text-2xl font-semibold mb-6">My Profile</h2>
         <div className="flex flex-col items-center mb-6">
           <img
-            src={preview || user.photo || "/default-profile.png"}
+            src={preview || user.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=random&color=fff&size=200`}
             alt="Profile"
             className="w-28 h-28 rounded-full object-cover border-2 border-gray-200 mb-2"
+            onError={(e) => {
+              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=random&color=fff&size=200`;
+            }}
           />
           {editPhoto ? (
             <>
@@ -102,20 +160,20 @@ const MyProfile = () => {
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoChange}
-                className="mb-2"
+                className="mb-2 text-sm"
               />
               <div className="flex gap-2">
                 <button
                   onClick={handlePhotoSave}
                   disabled={loading || !profilePic}
-                  className="px-4 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition"
                 >
                   {loading ? "Saving..." : "Save"}
                 </button>
                 <button
                   onClick={handlePhotoCancel}
                   disabled={loading}
-                  className="px-4 py-1 rounded bg-gray-300 text-gray-700 hover:bg-gray-400"
+                  className="px-4 py-1 rounded bg-gray-300 text-gray-700 hover:bg-gray-400 transition"
                 >
                   Cancel
                 </button>
@@ -124,7 +182,7 @@ const MyProfile = () => {
           ) : (
             <button
               onClick={() => setEditPhoto(true)}
-              className="px-4 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
+              className="px-4 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
             >
               {user.photo ? "Change Photo" : "Add Photo"}
             </button>
@@ -132,7 +190,13 @@ const MyProfile = () => {
         </div>
         <div className="w-full mb-6">
           <div className="mb-2">
+            <span className="font-bold">Name:</span> {user.name || "Not set"}
+          </div>
+          <div className="mb-2">
             <span className="font-bold">Email:</span> {user.email}
+          </div>
+          <div className="mb-2">
+            <span className="font-bold">Member since:</span> {new Date(user.date || user.createdAt).toLocaleDateString()}
           </div>
         </div>
         <div className="w-full mb-6 flex flex-col gap-2">

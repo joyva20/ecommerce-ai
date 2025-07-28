@@ -2,8 +2,11 @@ import { assets } from "../assets/assets";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import { ShopContext } from "../context/ShopContext";
+import { toast } from "react-toastify";
+
 const NavBar = () => {
   const [isVisible, setisVisible] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const {
     setShowSearch,
     getCartCount,
@@ -11,26 +14,41 @@ const NavBar = () => {
     token,
     setToken,
     setCartItems,
+    BACKEND_URL,
+    profilePhoto,
+    refreshProfilePhoto,
   } = useContext(ShopContext);
   const location = useLocation();
-  const [profilePhoto, setProfilePhoto] = useState(null);
+
+  // Close dropdown when clicking outside
   useEffect(() => {
-    // Ambil foto profil user jika sudah login
-    if (token) {
-      fetch("/api/user/profile", { credentials: "include" })
-        .then(res => res.json())
-        .then(data => setProfilePhoto(data.photo))
-        .catch(() => setProfilePhoto(null));
-    } else {
-      setProfilePhoto(null);
-    }
-  }, [token]);
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.profile-dropdown')) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const logout = () => {
-    navigate("/login");
+    navigate("/");  // Redirect ke homepage, bukan login page
     localStorage.removeItem("token");
     setToken("");
     setCartItems({});
+    setShowDropdown(false);
+  };
+
+  const toggleDropdown = () => {
+    if (token) {
+      setShowDropdown(!showDropdown);
+    } else {
+      toast.info("Please login to access your profile");
+      navigate("/login");
+    }
   };
   return (
     <div className="flex items-center justify-between py-2 font-medium">
@@ -66,37 +84,58 @@ const NavBar = () => {
           alt="Search"
           className="w-5 cursor-pointer"
         />
-        <div className="group relative">
-          <Link to={token ? "/my-profile" : "/login"}>
-            <img
-              src={profilePhoto || assets.profile_icon}
-              alt="Profile Icon"
-              className="w-7 h-7 rounded-full object-cover border border-gray-300 cursor-pointer"
-            />
-          </Link>
+        <div className="profile-dropdown relative">
+          <img
+            src={profilePhoto || assets.profile_icon}
+            alt={token ? "Profile" : "Click to Login"}
+            className={`w-7 h-7 rounded-full object-cover cursor-pointer transition-all ${
+              token 
+                ? "border border-gray-300 hover:border-gray-500" 
+                : "border-2 border-gray-400 hover:border-blue-500 opacity-70 hover:opacity-100"
+            }`}
+            onClick={toggleDropdown}
+            title={token ? "Profile Menu" : "Click to Login"}
+          />
+          
           {/* Dropdown Menu */}
-          <div
-            className={`${token === "" || !token ? `group-hover:hidden` : "group-hover:block"} dropdown-menu absolute right-0 z-10 hidden pt-4`}
-          >
-            <div className="flex w-40 flex-col gap-2 rounded-lg bg-slate-100 px-5 py-3 text-gray-500 items-center">
-              <img
-                src={profilePhoto || assets.profile_icon}
-                alt="Profile"
-                className="w-12 h-12 rounded-full object-cover border border-gray-300 mb-2"
-              />
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={() => navigate("/my-profile")}
-              >My Profile</p>
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={() => navigate("/orders")}
-              >Orders</p>
-              <p className="cursor-pointer hover:text-black" onClick={logout}>
-                Logout
-              </p>
+          {showDropdown && token && (
+            <div className="dropdown-menu absolute right-0 z-50 mt-2 w-40 rounded-lg bg-white shadow-lg border border-gray-200">
+              <div className="flex flex-col py-2">
+                <div className="flex items-center px-4 py-2 border-b border-gray-100">
+                  <img
+                    src={profilePhoto || assets.profile_icon}
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full object-cover border border-gray-300 mr-2"
+                  />
+                  <span className="text-sm text-gray-700 font-medium">Profile</span>
+                </div>
+                <button
+                  className="text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  onClick={() => {
+                    navigate("/my-profile");
+                    setShowDropdown(false);
+                  }}
+                >
+                  My Profile
+                </button>
+                <button
+                  className="text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  onClick={() => {
+                    navigate("/orders");
+                    setShowDropdown(false);
+                  }}
+                >
+                  Orders
+                </button>
+                <button
+                  className="text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-100"
+                  onClick={logout}
+                >
+                  Logout
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <Link to="/cart" className="relative">
           <img src={assets.cart_icon} alt="Orders" className="w-5 min-w-5" />

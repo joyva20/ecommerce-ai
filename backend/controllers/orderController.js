@@ -1,11 +1,22 @@
 // Hapus satu order berdasarkan id
 const removeOrder = async (req, res) => {
   try {
-    const { id } = req.body;
-    if (!id) return res.json({ success: false, message: "Order ID required" });
-    await orderModel.findByIdAndDelete(id);
-    res.json({ success: true, message: "Order deleted" });
+    const { orderId, id } = req.body;
+    const orderIdToDelete = orderId || id;
+    
+    if (!orderIdToDelete) {
+      return res.json({ success: false, message: "Order ID required" });
+    }
+    
+    const deletedOrder = await orderModel.findByIdAndDelete(orderIdToDelete);
+    
+    if (!deletedOrder) {
+      return res.json({ success: false, message: "Order not found" });
+    }
+    
+    res.json({ success: true, message: "Order deleted successfully" });
   } catch (error) {
+    console.error("Delete order error:", error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -78,10 +89,29 @@ const userOrders = async (req, res) => {
 const updateStatus = async (req, res) => {
   try {
     const { orderId, status, statusState } = req.body;
-    await orderModel.findByIdAndUpdate(orderId, { status, statusState });
-    res.json({ success: true, message: "Status Updated" });
+    
+    if (!orderId) {
+      return res.json({ success: false, message: "Order ID required" });
+    }
+    
+    if (!status) {
+      return res.json({ success: false, message: "Status required" });
+    }
+    
+    const updateData = { status };
+    if (statusState) {
+      updateData.statusState = statusState;
+    }
+    
+    const updatedOrder = await orderModel.findByIdAndUpdate(orderId, updateData, { new: true });
+    
+    if (!updatedOrder) {
+      return res.json({ success: false, message: "Order not found" });
+    }
+    
+    res.json({ success: true, message: "Status updated successfully", order: updatedOrder });
   } catch (error) {
-    console.error(error);
+    console.error("Update status error:", error);
     res.json({ success: false, message: error.message });
   }
 };

@@ -20,6 +20,7 @@ const orderRouter = express.Router();
 orderRouter.post("/list", adminAuth, allOrders);
 orderRouter.post("/status", adminAuth, updateStatus);
 orderRouter.post("/remove", adminAuth, removeOrder);
+orderRouter.post("/delete", adminAuth, removeOrder); // Alternative route for frontend consistency
 
 // Payment Features
 // Route to place a new order for COD

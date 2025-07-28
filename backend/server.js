@@ -34,7 +34,7 @@ app.use(cors());
 // Mount the cartRouter at the '/api/cart' path, so all routes defined in cartRouter will be prefixed with '/api/cart'
 // Mount the orderRouter at the '/api/order' path, so all routes defined in orderRouter will be prefixed with '/api/order'
 app.use("/api/user", userRouter);
-app.use("/api/user", userProfileRoute);
+app.use("/api/user-profile", userProfileRoute);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
