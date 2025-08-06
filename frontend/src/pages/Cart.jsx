@@ -65,9 +65,11 @@ const Cart = () => {
                     <p>
                       {formatCurrency(productData.price)}
                     </p>
-                    <p className="bg-slate-50 px-2 sm:px-3 sm:py-1">
-                      {item.size}
-                    </p>
+                    {item.size !== "No Size" && (
+                      <p className="bg-slate-50 px-2 sm:px-3 sm:py-1">
+                        {item.size}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

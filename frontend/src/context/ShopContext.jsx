@@ -10,7 +10,7 @@ export const ShopContext = createContext();
 const ShopContextProvider = (props) => {
   const currency = "Rp ";
   const delivery_fee = 10;
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
   
   // Debug log untuk memastikan BACKEND_URL terbaca
   console.log('🔧 ShopContext BACKEND_URL:', BACKEND_URL);
@@ -29,7 +29,8 @@ const ShopContextProvider = (props) => {
       toast.error("You should login/create account first");
       return;
     }
-    if (!size) {
+    // Allow "No Size" products, but reject empty size for regular products
+    if (!size || size.trim() === '') {
       toast.error("Select Product Size");
       return;
     }

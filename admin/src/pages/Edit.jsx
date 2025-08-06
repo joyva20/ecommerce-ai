@@ -188,8 +188,14 @@ const Edit = ({ token, productId, onClose, onUpdated }) => {
           <div>
             <p className="mb-2">Product Sizes</p>
             <div className="flex gap-3">
+              <div onClick={() => setSizes((prev) => prev.includes("No Size") ? prev.filter((item) => item !== "No Size") : ["No Size"])}>
+                <p className={`${sizes.includes("No Size") ? "bg-pink-100 shadow-[inset_0px_0px_3px_.25px_#c4b5bd]" : "bg-slate-200"} px-3 py-1 cursor-pointer rounded`}> No Size </p>
+              </div>
               {["S","M","L","XL","XXL"].map((sz) => (
-                <div key={sz} onClick={() => setSizes((prev) => prev.includes(sz) ? prev.filter((item) => item !== sz) : [...prev, sz])}>
+                <div key={sz} onClick={() => setSizes((prev) => {
+                  const filteredPrev = prev.filter(item => item !== "No Size");
+                  return filteredPrev.includes(sz) ? filteredPrev.filter((item) => item !== sz) : [...filteredPrev, sz];
+                })}>
                   <p className={`${sizes.includes(sz) ? "bg-pink-100 shadow-[inset_0px_0px_3px_.25px_#c4b5bd]" : "bg-slate-200"} px-3 py-1 cursor-pointer rounded`}> {sz} </p>
                 </div>
               ))}

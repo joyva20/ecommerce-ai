@@ -211,98 +211,46 @@ const Add = ({ token }) => {
           <div
             onClick={() =>
               setSizes((prev) =>
-                prev.includes("S")
-                  ? prev.filter((item) => item !== "S")
-                  : [...prev, "S"],
+                prev.includes("No Size")
+                  ? prev.filter((item) => item !== "No Size")
+                  : ["No Size"]
               )
             }
           >
             <p
               className={`${
-                sizes.includes("S")
+                sizes.includes("No Size")
                   ? "bg-pink-100 shadow-[inset_0px_0px_3px_.25px_#c4b5bd]"
                   : "bg-slate-200"
               } px-3 py-1 cursor-pointer`}
             >
-              S
+              No Size
             </p>
           </div>
-          <div
-            onClick={() =>
-              setSizes((prev) =>
-                prev.includes("M")
-                  ? prev.filter((item) => item !== "M")
-                  : [...prev, "M"],
-              )
-            }
-          >
-            <p
-              className={`${
-                sizes.includes("M")
-                  ? "bg-pink-100 shadow-[inset_0px_0px_3px_.25px_#c4b5bd]"
-                  : "bg-slate-200"
-              } px-3 py-1 cursor-pointer`}
+          {["S","M","L","XL","XXL"].map((sz) => (
+            <div
+              key={sz}
+              onClick={() =>
+                setSizes((prev) => {
+                  // If "No Size" is selected, remove it when selecting other sizes
+                  const filteredPrev = prev.filter(item => item !== "No Size");
+                  return filteredPrev.includes(sz)
+                    ? filteredPrev.filter((item) => item !== sz)
+                    : [...filteredPrev, sz];
+                })
+              }
             >
-              M
-            </p>
-          </div>
-          <div
-            onClick={() =>
-              setSizes((prev) =>
-                prev.includes("L")
-                  ? prev.filter((item) => item !== "L")
-                  : [...prev, "L"],
-              )
-            }
-          >
-            <p
-              className={`${
-                sizes.includes("L")
-                  ? "bg-pink-100 shadow-[inset_0px_0px_3px_.25px_#c4b5bd]"
-                  : "bg-slate-200"
-              } px-3 py-1 cursor-pointer`}
-            >
-              L
-            </p>
-          </div>
-          <div
-            onClick={() =>
-              setSizes((prev) =>
-                prev.includes("XL")
-                  ? prev.filter((item) => item !== "XL")
-                  : [...prev, "XL"],
-              )
-            }
-          >
-            <p
-              className={`${
-                sizes.includes("XL")
-                  ? "bg-pink-100 shadow-[inset_0px_0px_3px_.25px_#c4b5bd]"
-                  : "bg-slate-200"
-              } px-3 py-1 cursor-pointer`}
-            >
-              XL
-            </p>
-          </div>
-          <div
-            onClick={() =>
-              setSizes((prev) =>
-                prev.includes("XXL")
-                  ? prev.filter((item) => item !== "XXL")
-                  : [...prev, "XXL"],
-              )
-            }
-          >
-            <p
-              className={`${
-                sizes.includes("XXL")
-                  ? "bg-pink-100 shadow-[inset_0px_0px_3px_.25px_#c4b5bd]"
-                  : "bg-slate-200"
-              } px-3 py-1 cursor-pointer`}
-            >
-              XXL
-            </p>
-          </div>
+              <p
+                className={`${
+                  sizes.includes(sz)
+                    ? "bg-pink-100 shadow-[inset_0px_0px_3px_.25px_#c4b5bd]"
+                    : "bg-slate-200"
+                } px-3 py-1 cursor-pointer`}
+              >
+                {sz}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
       <div className="flex gap-2 mt-2">

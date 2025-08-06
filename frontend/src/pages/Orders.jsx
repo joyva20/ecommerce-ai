@@ -4,11 +4,15 @@ import Title from "../components/Title";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { formatCurrency } from "../utils/formatCurrency";
+import ReviewModal from "../components/ReviewModal";
 
 const Orders = () => {
   const { BACKEND_URL, token, currency } = useContext(ShopContext);
   const [orderData, setOrderData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [reviewedProducts, setReviewedProducts] = useState(new Map()); // Changed to Map to store review data
 
   const loadOrderData = async () => {
     try {
@@ -40,6 +44,9 @@ const Orders = () => {
         });
 
         setOrderData(allOrdersItem.reverse());
+        
+        // Check review status for all products
+        await checkReviewStatus(allOrdersItem);
       } else {
         toast.error(response.data.message || "Failed to load orders");
       }
@@ -48,6 +55,45 @@ const Orders = () => {
       toast.error("Failed to load orders");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Function to check review status for all products
+  const checkReviewStatus = async (orders) => {
+    try {
+      if (!token) return;
+      
+      const reviewStatusMap = new Map();
+      
+      // Create unique list of products to check
+      const uniqueProducts = new Set();
+      orders.forEach(order => {
+        uniqueProducts.add(order._id); // product ID
+      });
+      
+      // Check review status for each unique product
+      for (const productId of uniqueProducts) {
+        try {
+          const response = await axios.post(
+            `${BACKEND_URL}/api/reviews/check/${productId}`,
+            {},
+            { headers: { token } }
+          );
+          
+          if (response.data.success) {
+            reviewStatusMap.set(productId, {
+              hasReviewed: response.data.hasReviewed,
+              review: response.data.review || null
+            });
+          }
+        } catch (error) {
+          console.error(`Error checking review status for product ${productId}:`, error);
+        }
+      }
+      
+      setReviewedProducts(reviewStatusMap);
+    } catch (error) {
+      console.error("Error checking review status:", error);
     }
   };
 
@@ -77,6 +123,68 @@ const Orders = () => {
     if (status === "Cancel") return "text-red-600";
     if (status === "Shipped" || status === "Out for delivery") return "text-blue-600";
     return "text-gray-600";
+  };
+
+  const handleTrackOrder = (order) => {
+    if (order.status === 'Delivered') {
+      // Button is disabled for delivered orders
+      return;
+    }
+    
+    // Show popup for feature under development
+    alert('This feature is currently under development');
+  };
+
+  const handleReview = async (order, product) => {
+    // Check if user has already reviewed this product
+    const reviewStatus = reviewedProducts.get(product._id);
+    
+    if (reviewStatus && reviewStatus.hasReviewed) {
+      toast.info('You have already reviewed this product');
+      return;
+    }
+    
+    setSelectedProduct({
+      ...product,
+      orderId: order._id
+    });
+    setShowReviewModal(true);
+  };
+
+  const handleReviewSubmit = async (reviewData) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'token': token  // Use 'token' header instead of Authorization Bearer
+        },
+        body: JSON.stringify(reviewData)
+      });
+      
+      if (response.ok) {
+        toast.success('Review submitted successfully!');
+        
+        // Update local review status
+        setReviewedProducts(prev => {
+          const newMap = new Map(prev);
+          newMap.set(selectedProduct._id, {
+            hasReviewed: true,
+            review: reviewData
+          });
+          return newMap;
+        });
+        
+        // Refresh orders to get latest data
+        loadOrderData();
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to submit review');
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast.error('Error submitting review');
+    }
   };
   return (
     <div className="border-t pt-16">
@@ -117,7 +225,9 @@ const Orders = () => {
                       {formatCurrency(item.price)}
                     </p>
                     <p>Quantity: {item.quanitity}</p>
-                    <p>Size: {item.size}</p>
+                    {item.size !== "No Size" && (
+                      <p>Size: {item.size}</p>
+                    )}
                   </div>
                   <p className="mt-1">
                     Date:{" "}
@@ -143,18 +253,44 @@ const Orders = () => {
                     {item.status}
                   </p>
                 </div>
-                <button
-                  onClick={loadOrderData}
-                  className="rounded border px-4 py-2 text-sm font-medium hover:bg-gray-50 transition"
-                  disabled={loading}
-                >
-                  {loading ? "Refreshing..." : "Track Order"}
-                </button>
+                <div className="flex gap-2">
+                  {item.status === 'Delivered' && (
+                    <button
+                      onClick={() => handleReview(item, item)}
+                      className={`rounded border px-3 py-1 text-sm font-medium transition ${
+                        reviewedProducts.get(item._id)?.hasReviewed
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300"
+                          : "hover:bg-gray-50 text-blue-600 border-blue-600"
+                      }`}
+                      disabled={reviewedProducts.get(item._id)?.hasReviewed}
+                    >
+                      {reviewedProducts.get(item._id)?.hasReviewed ? "✓ Reviewed" : "Write Review"}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleTrackOrder(item)}
+                    className={`rounded border px-4 py-2 text-sm font-medium transition ${
+                      item.status === 'Delivered' 
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300"
+                        : "hover:bg-gray-50 border-gray-300"
+                    }`}
+                    disabled={item.status === 'Delivered'}
+                  >
+                    Track Order
+                  </button>
+                </div>
               </div>
             </div>
           ))
         )}
       </div>
+      
+      <ReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        product={selectedProduct}
+        onSubmit={handleReviewSubmit}
+      />
     </div>
   );
 };

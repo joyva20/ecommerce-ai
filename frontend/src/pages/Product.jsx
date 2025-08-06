@@ -10,24 +10,98 @@ const Product = () => {
    is matched by /posts/123 
    then params.postId will be "123".*/
   const { productId } = useParams();
-  const { products, currency, addToCart } = useContext(ShopContext);
+  const { products, currency, addToCart, BACKEND_URL } = useContext(ShopContext);
   const [productData, setProductData] = useState(false);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
+  const [reviews, setReviews] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [activeTab, setActiveTab] = useState('description');
 
   const fetchProductData = async () => {
     products.map((item) => {
       if (item._id === productId) {
         setProductData(item);
-        // console.log(item);
+        console.log('🛍️ Product Data:', item);
         setImage(item.image[0]);
+        
+        // Auto-set size for "No Size" products or clear size for regular products
+        if (item.sizes && item.sizes.length > 0) {
+          if (item.sizes.includes("No Size") && item.sizes.length === 1) {
+            // Product only has "No Size" - auto select it
+            console.log('📏 Auto-selecting No Size');
+            setSize("No Size");
+          } else {
+            // Product has regular sizes - clear selection so user must choose
+            console.log('📏 Regular sizes available, clearing selection');
+            setSize("");
+          }
+        } else {
+          // No sizes defined
+          setSize("");
+        }
+        
         // Stop the Loop
         return null;
       }
     });
   };
+
+  const fetchProductReviews = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/reviews/product/${productId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setReviews(data.reviews);
+        setTotalReviews(data.reviews.length);
+        
+        // Calculate average rating
+        if (data.reviews.length > 0) {
+          const total = data.reviews.reduce((sum, review) => sum + review.rating, 0);
+          setAverageRating(total / data.reviews.length);
+        } else {
+          setAverageRating(0);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    }
+  };
+
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    
+    // Full stars
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <img key={`full-${i}`} src={assets.star_icon} alt="Rating Icon" className="w-3" />
+      );
+    }
+    
+    // Half star (if needed)
+    if (hasHalfStar && fullStars < 5) {
+      stars.push(
+        <img key="half" src={assets.star_icon} alt="Rating Icon" className="w-3 opacity-50" />
+      );
+    }
+    
+    // Empty stars
+    const remainingStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < remainingStars; i++) {
+      stars.push(
+        <img key={`empty-${i}`} src={assets.star_dull_icon} alt="Rating Icon" className="w-3" />
+      );
+    }
+    
+    return stars;
+  };
   useEffect(() => {
     fetchProductData();
+    fetchProductReviews();
   }, [productId, products]);
 
   return productData ? (
@@ -55,16 +129,17 @@ const Product = () => {
         <div className="flex-1">
           <h1 className="mt-2 text-2xl font-medium">{productData.name}</h1>
           <div className="mt-2 flex items-center gap-1">
-            <img src={assets.star_icon} alt="Rating Icon" className="w-3" />
-            <img src={assets.star_icon} alt="Rating Icon" className="w-3" />
-            <img src={assets.star_icon} alt="Rating Icon" className="w-3" />
-            <img src={assets.star_icon} alt="Rating Icon" className="w-3" />
-            <img
-              src={assets.star_dull_icon}
-              alt="Rating Icon"
-              className="w-3"
-            />
-            <p className="pl-2">(122)</p>
+            {totalReviews > 0 ? (
+              <>
+                {renderStars(averageRating)}
+                <p className="pl-2">({totalReviews})</p>
+              </>
+            ) : (
+              <>
+                {renderStars(0)}
+                <p className="pl-2">(No reviews yet)</p>
+              </>
+            )}
           </div>
           <p className="mt-2 text-3xl font-medium">
             {formatCurrency(productData.price)}
@@ -72,25 +147,66 @@ const Product = () => {
           <p className="mt-5 text-gray-500 md:w-4/5">
             {productData.description}
           </p>
-          <div className="my-8 flex flex-col gap-4">
-            <p>Select Size</p>
-            <div className="flex gap-2">
-              {productData.sizes.map((item, index) => {
-                return (
-                  <button
-                    onClick={() => setSize(item)}
-                    className={`border bg-gray-200 px-2 py-2 ${item === size ? `border-orange-500` : ``}`}
-                    key={index}
-                  >
-                    {item}
-                  </button>
-                );
-              })}
+          
+          {/* Conditional Size Selection - Only show if product has regular sizes */}
+          {productData.sizes && 
+           !(productData.sizes.length === 1 && productData.sizes[0] === "No Size") && (
+            <div className="my-8 flex flex-col gap-4">
+              <p>Select Size</p>
+              <div className="flex gap-2">
+                {productData.sizes
+                  .filter(item => item !== "No Size") // Filter out "No Size" from display
+                  .map((item, index) => {
+                    return (
+                      <button
+                        onClick={() => setSize(item)}
+                        className={`border bg-gray-200 px-2 py-2 ${item === size ? `border-orange-500` : ``}`}
+                        key={index}
+                      >
+                        {item}
+                      </button>
+                    );
+                  })}
+              </div>
             </div>
-          </div>
+          )}
+          
+          {/* Show info for No Size products */}
+          {productData.sizes && 
+           productData.sizes.length === 1 && 
+           productData.sizes[0] === "No Size" && (
+            <div className="my-8">
+              <p className="text-sm text-gray-600 italic">One size fits all</p>
+            </div>
+          )}
+          
           {/* We Need to Add this to Global context - using global addToCart Function */}
           <button
-            onClick={() => addToCart(productData._id, size)}
+            onClick={() => {
+              // Determine the size to use for cart
+              let selectedSize;
+              
+              // For "No Size" products, force the size to "No Size"
+              if (productData.sizes && 
+                  productData.sizes.length === 1 && 
+                  productData.sizes[0] === "No Size") {
+                selectedSize = "No Size";
+                console.log('🛍️ Using No Size for cart:', selectedSize);
+              } else {
+                // For regular products, use the selected size
+                selectedSize = size;
+                console.log('🛍️ Using selected size for cart:', selectedSize);
+              }
+              
+              // Validate size selection
+              if (!selectedSize || selectedSize.trim() === '') {
+                alert("Please select a size");
+                return;
+              }
+              
+              console.log('🛍️ Adding to cart:', productData._id, selectedSize);
+              addToCart(productData._id, selectedSize);
+            }}
             className="bg-black px-8 py-3 text-sm text-white hover:bg-gray-900 active:bg-gray-700"
           >
             ADD TO CART
@@ -106,25 +222,75 @@ const Product = () => {
       {/* ------------ Description & Review Section ------------*/}
       <div className="mt-20">
         <div className="flex">
-          <b className="border px-5 py-3 text-sm">Description</b>
-          <p className="border px-5 py-3 text-sm">Reviews (122)</p>
+          <b 
+            className={`border px-5 py-3 text-sm cursor-pointer ${
+              activeTab === 'description' ? 'bg-gray-100' : ''
+            }`}
+            onClick={() => setActiveTab('description')}
+          >
+            Description
+          </b>
+          <p 
+            className={`border px-5 py-3 text-sm cursor-pointer ${
+              activeTab === 'reviews' ? 'bg-gray-100' : ''
+            }`}
+            onClick={() => setActiveTab('reviews')}
+          >
+            Reviews ({totalReviews})
+          </p>
         </div>
         <div className="flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500">
-          <p>
-            An E-commerce website is an online platform that facilitates the
-            buying and selling of products or services over the internet. It
-            serves as virtual marketplace where businesses and individuals can
-            showcase their products, interact with customers, and conduct
-            transactions without the need for a physical presence. E-commerce
-            websites have gained immense popularity due to their convenience,
-            accessibility, and the global reach they offer.
-          </p>
-          <p>
-            E-commerce websites typically display products or services along
-            with detailed descriptions, images, prices, and any available
-            variations (e.g., sizes, colors). Each product usually has its own
-            dedicated page with relevant information.
-          </p>
+          {activeTab === 'description' ? (
+            <>
+              <p>
+                An E-commerce website is an online platform that facilitates the
+                buying and selling of products or services over the internet. It
+                serves as virtual marketplace where businesses and individuals can
+                showcase their products, interact with customers, and conduct
+                transactions without the need for a physical presence. E-commerce
+                websites have gained immense popularity due to their convenience,
+                accessibility, and the global reach they offer.
+              </p>
+              <p>
+                E-commerce websites typically display products or services along
+                with detailed descriptions, images, prices, and any available
+                variations (e.g., sizes, colors). Each product usually has its own
+                dedicated page with relevant information.
+              </p>
+            </>
+          ) : (
+            <div className="reviews-section">
+              {reviews.length > 0 ? (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div key={review._id} className="border-b pb-4 last:border-b-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-700">
+                            {review.user?.name || 'Anonymous User'}
+                          </span>
+                          <div className="flex items-center">
+                            {renderStars(review.rating)}
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-400">
+                          {new Date(review.createdAt).toLocaleDateString('id-ID')}
+                        </span>
+                      </div>
+                      <p className="text-gray-600">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No reviews yet</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Be the first to review this product!
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
       {/* ------------ Display related products ------------*/}

@@ -79,7 +79,20 @@ const CheckoutRecommendations = ({ cartItems, onAddToCart }) => {
 
   const handleAddToCart = (product) => {
     if (product.originalProduct && onAddToCart) {
-      onAddToCart(product.originalProduct._id, 'S'); // Default size
+      // Determine appropriate size
+      const productSizes = product.originalProduct.sizes || [];
+      let defaultSize = 'S'; // Default fallback
+      
+      if (productSizes.length === 1 && productSizes[0] === "No Size") {
+        // Product only has "No Size"
+        defaultSize = "No Size";
+      } else if (productSizes.length > 0) {
+        // Get first available regular size (excluding "No Size")
+        const regularSizes = productSizes.filter(s => s !== "No Size");
+        defaultSize = regularSizes.length > 0 ? regularSizes[0] : productSizes[0];
+      }
+      
+      onAddToCart(product.originalProduct._id, defaultSize);
       toast.success(`${product.name} added to cart!`);
     } else {
       toast.error('Product not available in our store');

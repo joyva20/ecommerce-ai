@@ -104,7 +104,9 @@ const Orders = ({ token }) => {
               <div>
                 {order.items.map((item, idx) => (
                   <p className="py-0.5" key={idx}>
-                    {item.name} x {item.quanitity} <span> {item.size} </span>{idx === order.items.length - 1 ? "" : ", "}
+                    {item.name} x {item.quanitity} 
+                    {item.size !== "No Size" && <span> {item.size} </span>}
+                    {idx === order.items.length - 1 ? "" : ", "}
                   </p>
                 ))}
               </div>

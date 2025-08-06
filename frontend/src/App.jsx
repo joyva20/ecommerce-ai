@@ -12,6 +12,7 @@ import Cart from "./pages/Cart";
 import Login from "./pages/Login";
 import PlaceOrders from "./pages/PlaceOrder";
 import Orders from "./pages/Orders";
+import PaymentResult from "./pages/PaymentResult";
 import NoPage from "./pages/NoPage";
 import Footer from "./components/Footer";
 import BacktoTopButton from "./components/BacktoTopButton";
@@ -31,6 +32,9 @@ const pages = {
   login: { path: "/login", element: <Login /> },
   placeOrders: { path: "/place-order", element: <PlaceOrders /> },
   orders: { path: "/orders", element: <Orders /> },
+  paymentFinish: { path: "/payment/finish", element: <PaymentResult /> },
+  paymentError: { path: "/payment/error", element: <PaymentResult /> },
+  paymentPending: { path: "/payment/pending", element: <PaymentResult /> },
   myProfile: { path: "/my-profile", element: <MyProfile /> },
   recommendation: { path: "/recommendation", element: <RecommendationPage /> },
 };

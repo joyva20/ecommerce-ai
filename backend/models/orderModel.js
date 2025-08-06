@@ -11,6 +11,21 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: { type: String, required: true },
   payment: { type: Boolean, required: true, default: false },
   date: { type: Number, required: true },
+  
+  // Midtrans Payment Fields
+  paymentStatus: { 
+    type: String, 
+    enum: ['pending', 'paid', 'failed', 'expired', 'cancelled'], 
+    default: 'pending' 
+  },
+  midtransOrderId: { type: String, unique: true, sparse: true },
+  snapToken: { type: String },
+  paymentType: { type: String }, // credit_card, bank_transfer, gopay, etc
+  transactionStatus: { type: String }, // capture, settlement, pending, deny, cancel, expire
+  fraudStatus: { type: String }, // accept, deny, challenge
+  paymentDetails: { type: Object }, // Raw Midtrans response
+  paidAt: { type: Date },
+  expiredAt: { type: Date }
 });
 
 // Return the Created order Model or create a new order Model

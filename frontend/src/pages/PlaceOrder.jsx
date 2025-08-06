@@ -1,6 +1,7 @@
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import CheckoutRecommendations from "../components/CheckoutRecommendations";
+import PaymentButton from "../components/PaymentButton";
 import { assets } from "../assets/assets";
 import { useContext, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
@@ -20,7 +21,9 @@ const PlaceOrder = () => {
     products,
     addToCart
   } = useContext(ShopContext);
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMethod, setPaymentMethod] = useState("qris");
+  const [currentOrderId, setCurrentOrderId] = useState(null);
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -63,8 +66,17 @@ const PlaceOrder = () => {
   };
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    
+    if (isProcessingOrder) return;
+    setIsProcessingOrder(true);
+    
     try {
       let orderItems = [];
+      
+      // Debug: Log cart items
+      console.log('🛒 Cart Items:', cartItems);
+      console.log('📦 Products:', products);
+      
       for (const items in cartItems)
         for (const item in cartItems[items])
           if (cartItems[items][item] > 0) {
@@ -75,6 +87,15 @@ const PlaceOrder = () => {
             itemInfo.quantity = cartItems[items][item]; // Fixed typo: quanitity -> quantity
             orderItems.push(itemInfo);
           }
+      
+      // Debug: Log order items
+      console.log('📋 Order Items:', orderItems);
+      
+      if (orderItems.length === 0) {
+        toast.error("Your cart is empty! Please add items to cart first.");
+        setIsProcessingOrder(false);
+        return;
+      }
       let orderData = {
         address: {
                   firstName: formData.firstName,
@@ -90,6 +111,7 @@ const PlaceOrder = () => {
         items: orderItems,
         amount: getCartAmount() + delivery_fee,
       };
+      
       switch (paymentMethod) {
         // API calls for COD
         case "cod":
@@ -108,6 +130,29 @@ const PlaceOrder = () => {
             }
           }
           break;
+          
+        // API calls for Digital Payments (QRIS, DANA, GOPAY, SHOPEEPAY)
+        case "qris":
+        case "dana":
+        case "gopay":
+        case "shopeepay":
+          {
+            orderData.paymentMethod = paymentMethod.toUpperCase();
+            const response = await axios.post(
+              BACKEND_URL + "/api/order/place",
+              orderData,
+              { headers: { token } },
+            );
+            
+            if (response.data.success) {
+              setCurrentOrderId(response.data.orderId);
+              toast.success(`Order created! Please complete payment with ${paymentMethod.toUpperCase()}.`);
+              // Cart will be cleared after successful payment
+            } else {
+              toast.error(response.data.message);
+            }
+          }
+          break;
 
         default:
           break;
@@ -115,7 +160,30 @@ const PlaceOrder = () => {
     } catch (error) {
       console.error(error);
       toast.error(error.message);
+    } finally {
+      setIsProcessingOrder(false);
     }
+  };
+
+  // Handle successful payment
+  const handlePaymentSuccess = (result) => {
+    console.log('Payment successful:', result);
+    setCartItems({});
+    navigate("/orders");
+    toast.success("Payment successful! Your order is being processed.");
+  };
+
+  // Handle pending payment
+  const handlePaymentPending = (result) => {
+    console.log('Payment pending:', result);
+    navigate("/orders");
+    toast.info("Payment is being processed. Please check your order status.");
+  };
+
+  // Handle payment error
+  const handlePaymentError = (result) => {
+    console.error('Payment error:', result);
+    toast.error("Payment failed. Please try again or contact support.");
   };
 
   return (
@@ -240,30 +308,52 @@ const PlaceOrder = () => {
           {/*----------------------- Payment Method Selection -----------------------*/}
           <div className="flex flex-col gap-3 lg:flex-row">
             <div
-              onClick={() => setPaymentMethod("sepah")}
+              onClick={() => setPaymentMethod("qris")}
               className="flex cursor-pointer items-center gap-3 border p-2 px-3"
             >
               <p
-                className={`h-3.5 min-w-3.5 rounded-full border transition duration-300 ease-in-out ${paymentMethod === "sepah" ? "bg-green-600" : ""}`}
+                className={`h-3.5 min-w-3.5 rounded-full border transition duration-300 ease-in-out ${paymentMethod === "qris" ? "bg-green-600" : ""}`}
               ></p>
-              <img
-                className="mx-4 h-5"
-                src={assets.Sepah_logo}
-                alt="Bank Sepah"
-              />
+              <div className="mx-4 text-sm font-medium text-gray-500">
+                <p>QRIS</p>
+                <p className="text-xs text-gray-400">Scan QR Code</p>
+              </div>
             </div>
             <div
-              onClick={() => setPaymentMethod("tejarat")}
+              onClick={() => setPaymentMethod("dana")}
               className="flex cursor-pointer items-center gap-3 border p-2 px-3"
             >
               <p
-                className={`h-3.5 min-w-3.5 rounded-full border transition duration-300 ease-in-out ${paymentMethod === "tejarat" ? "bg-green-600" : ""}`}
+                className={`h-3.5 min-w-3.5 rounded-full border transition duration-300 ease-in-out ${paymentMethod === "dana" ? "bg-green-600" : ""}`}
               ></p>
-              <img
-                className="mx-4 h-5"
-                src={assets.Tejarat_Logo}
-                alt="Bank Tejarat"
-              />
+              <div className="mx-4 text-sm font-medium text-gray-500">
+                <p>DANA</p>
+                <p className="text-xs text-gray-400">E-Wallet</p>
+              </div>
+            </div>
+            <div
+              onClick={() => setPaymentMethod("gopay")}
+              className="flex cursor-pointer items-center gap-3 border p-2 px-3"
+            >
+              <p
+                className={`h-3.5 min-w-3.5 rounded-full border transition duration-300 ease-in-out ${paymentMethod === "gopay" ? "bg-green-600" : ""}`}
+              ></p>
+              <div className="mx-4 text-sm font-medium text-gray-500">
+                <p>GOPAY</p>
+                <p className="text-xs text-gray-400">E-Wallet</p>
+              </div>
+            </div>
+            <div
+              onClick={() => setPaymentMethod("shopeepay")}
+              className="flex cursor-pointer items-center gap-3 border p-2 px-3"
+            >
+              <p
+                className={`h-3.5 min-w-3.5 rounded-full border transition duration-300 ease-in-out ${paymentMethod === "shopeepay" ? "bg-green-600" : ""}`}
+              ></p>
+              <div className="mx-4 text-sm font-medium text-gray-500">
+                <p>SHOPEEPAY</p>
+                <p className="text-xs text-gray-400">E-Wallet</p>
+              </div>
             </div>
             <div
               onClick={() => setPaymentMethod("cod")}
@@ -278,38 +368,56 @@ const PlaceOrder = () => {
             </div>
           </div>
           <div className="mt-8 w-full text-center">
-            <button
-              type="submit"
-              onClick={() => {
-                // let navPath = "/orders";
-                let canShowError = false;
-                let inputsNotFilled = [];
-                const inputs = document.querySelectorAll(`input:required`);
-                for (const i in inputs) {
-                  const input = inputs[i];
-                  if (input.value === "") {
-                    const inputThatIsNotFilled = input.placeholder.slice(0, -1);
-                    // navPath = "/place-order";
-                    canShowError = true;
-                    inputsNotFilled.push(inputThatIsNotFilled);
+            {(paymentMethod === "qris" || paymentMethod === "dana" || paymentMethod === "gopay" || paymentMethod === "shopeepay") && currentOrderId ? (
+              <PaymentButton
+                orderId={currentOrderId}
+                amount={getCartAmount() + delivery_fee}
+                onSuccess={handlePaymentSuccess}
+                onPending={handlePaymentPending}
+                onError={handlePaymentError}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-16 py-3 text-sm"
+              >
+                PAY WITH {paymentMethod.toUpperCase()}
+              </PaymentButton>
+            ) : (
+              <button
+                type="submit"
+                disabled={isProcessingOrder}
+                onClick={() => {
+                  // let navPath = "/orders";
+                  let canShowError = false;
+                  let inputsNotFilled = [];
+                  const inputs = document.querySelectorAll(`input:required`);
+                  for (const i in inputs) {
+                    const input = inputs[i];
+                    if (input.value === "") {
+                      const inputThatIsNotFilled = input.placeholder.slice(0, -1);
+                      // navPath = "/place-order";
+                      canShowError = true;
+                      inputsNotFilled.push(inputThatIsNotFilled);
+                    }
                   }
-                }
-                if (canShowError) {
-                  let errorMessage = "Fill out the required fills:";
-                  inputsNotFilled.map(
-                    (inputName) => (errorMessage += "\n" + inputName),
-                  );
-                  toast.error(<pre>{errorMessage}</pre>);
-                }
-                // else {
-                //   toast.success("Your order has been submitted.");
-                // }
-                // navigate(navPath);
-              }}
-              className="bg-black px-16 py-3 text-sm text-white"
-            >
-              PLACE ORDER
-            </button>
+                  if (canShowError) {
+                    let errorMessage = "Fill out the required fills:";
+                    inputsNotFilled.map(
+                      (inputName) => (errorMessage += "\n" + inputName),
+                    );
+                    toast.error(<pre>{errorMessage}</pre>);
+                  }
+                  // else {
+                  //   toast.success("Your order has been submitted.");
+                  // }
+                  // navigate(navPath);
+                }}
+                className={`px-16 py-3 text-sm text-white transition-colors ${
+                  isProcessingOrder 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-black hover:bg-gray-800'
+                }`}
+              >
+                {isProcessingOrder ? 'PROCESSING...' : 'PLACE ORDER'}
+              </button>
+            )}
           </div>
         </div>
       </div>
