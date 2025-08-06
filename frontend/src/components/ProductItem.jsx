@@ -2,6 +2,7 @@
 import { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { Link } from "react-router-dom";
+import { formatCurrency } from "../utils/formatCurrency";
 
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -18,7 +19,7 @@ const ProductItem = ({ id, image, name, price }) => {
       </div>
       <div>
       <p className="pt-3 pb-1 text-sm">{name}</p>
-      <p className="text-sm font-medium">{currency}{price}</p>
+      <p className="text-sm font-medium">{formatCurrency(price)}</p>
       </div>
     </Link>
   );

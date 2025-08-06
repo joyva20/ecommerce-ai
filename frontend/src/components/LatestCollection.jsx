@@ -7,12 +7,25 @@ const LatestCollection = () => {
   // Destructures the object passed as props and retrieves
   // the value associated with the key 'products'.
   // Input<key> = 'products', output<value> = products array or object
-  const { products } = useContext(ShopContext);
+  const { BACKEND_URL } = useContext(ShopContext);
   const [latestProducts, setLatestProducts] = useState([]);
-  // Only Run UseEffect When products is updated
+  
+  // Fetch random products for latest collection
   useEffect(() => {
-    setLatestProducts(products.slice(0, 10));
-  }, [products]);
+    const fetchRandomProducts = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/product/latest-random`);
+        const data = await response.json();
+        if (data.success) {
+          setLatestProducts(data.products);
+        }
+      } catch (error) {
+        console.error('Error fetching random products:', error);
+      }
+    };
+
+    fetchRandomProducts();
+  }, [BACKEND_URL]);
 
   return (
     <div className="my-10">

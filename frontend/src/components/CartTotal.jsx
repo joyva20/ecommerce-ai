@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
+import { formatCurrency } from "../utils/formatCurrency";
 
 const CartTotal = () => {
   const { currency, delivery_fee, getCartAmount } = useContext(ShopContext);
@@ -14,26 +15,23 @@ const CartTotal = () => {
         <div className="flex justify-between">
           <p>Subtotal</p>
           <p>
-            {currency} {cartAmount}.00
+            {formatCurrency(cartAmount)}
           </p>
         </div>
         <hr />
         <div className="flex justify-between">
           <p>Shipping fee</p>
           <p>
-            {currency}{" "}
-            {cartAmount === 0 || cartAmount === undefined ? 0 : delivery_fee}.00
+            {formatCurrency(cartAmount === 0 || cartAmount === undefined ? 0 : delivery_fee)}
           </p>
         </div>
         <hr />
         <div className="flex justify-between">
           <b>Total</b>
           <b>
-            {currency}{" "}
-            {cartAmount === 0 || cartAmount === undefined
+            {formatCurrency(cartAmount === 0 || cartAmount === undefined
               ? 0
-              : cartAmount + delivery_fee}
-            .00
+              : cartAmount + delivery_fee)}
           </b>
         </div>
       </div>

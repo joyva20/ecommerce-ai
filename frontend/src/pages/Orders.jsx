@@ -3,6 +3,7 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { formatCurrency } from "../utils/formatCurrency";
 
 const Orders = () => {
   const { BACKEND_URL, token, currency } = useContext(ShopContext);
@@ -113,8 +114,7 @@ const Orders = () => {
                   <p className="font-medium sm:text-base">{item.name}</p>
                   <div className="mt-1 flex items-center gap-3 text-base text-gray-700">
                     <p>
-                      {currency}
-                      {item.price}
+                      {formatCurrency(item.price)}
                     </p>
                     <p>Quantity: {item.quanitity}</p>
                     <p>Size: {item.size}</p>

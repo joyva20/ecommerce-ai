@@ -220,10 +220,19 @@ const addProduct = async (req, res) => {
 // Function to list product
 const listProducts = async (req, res) => {
   try {
-    // Fetching all documents from the productModel collection and storing them
-    //  in the products variable
-    const products = await productModel.find({});
-    res.json({ success: true, products });
+    // Check if this is a request for random products (latest-random endpoint)
+    if (req.path === '/latest-random') {
+      // Get random 10 products using MongoDB aggregation
+      const products = await productModel.aggregate([
+        { $sample: { size: 10 } }
+      ]);
+      res.json({ success: true, products });
+    } else {
+      // Fetching all documents from the productModel collection and storing them
+      //  in the products variable
+      const products = await productModel.find({});
+      res.json({ success: true, products });
+    }
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: error.message });

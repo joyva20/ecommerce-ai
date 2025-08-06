@@ -48,6 +48,7 @@ productRouter.post(
 productRouter.post("/remove", adminAuth, removeProduct);
 productRouter.post("/single", getSingleProduct);
 productRouter.get("/list", listProducts);
+productRouter.get("/latest-random", listProducts); // Untuk random latest collection
 
 export default productRouter;
 

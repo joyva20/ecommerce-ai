@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import RelatedProducts from "../components/RelatedProducts";
+import { formatCurrency } from "../utils/formatCurrency";
 
 const Product = () => {
   /*Assuming a route pattern like /posts/:postId
@@ -66,8 +67,7 @@ const Product = () => {
             <p className="pl-2">(122)</p>
           </div>
           <p className="mt-2 text-3xl font-medium">
-            {currency}
-            {productData.price}
+            {formatCurrency(productData.price)}
           </p>
           <p className="mt-5 text-gray-500 md:w-4/5">
             {productData.description}

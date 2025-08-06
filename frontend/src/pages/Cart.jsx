@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { toast } from "react-toastify";
 import CartTotal from "../components/CartTotal";
+import { formatCurrency } from "../utils/formatCurrency";
 
 const Cart = () => {
   const { products, currency, cartItems, UpdateQuantity, navigate } =
@@ -62,8 +63,7 @@ const Cart = () => {
                   </p>
                   <div className="mt-2 flex items-center gap-5">
                     <p>
-                      {currency}
-                      {productData.price}
+                      {formatCurrency(productData.price)}
                     </p>
                     <p className="bg-slate-50 px-2 sm:px-3 sm:py-1">
                       {item.size}
