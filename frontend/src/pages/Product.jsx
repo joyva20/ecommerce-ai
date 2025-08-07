@@ -10,7 +10,7 @@ const Product = () => {
    is matched by /posts/123 
    then params.postId will be "123".*/
   const { productId } = useParams();
-  const { products, currency, addToCart, BACKEND_URL } = useContext(ShopContext);
+  const { products, currency, addToCart, BACKEND_URL, token } = useContext(ShopContext);
   const [productData, setProductData] = useState(false);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
@@ -19,18 +19,54 @@ const Product = () => {
   const [totalReviews, setTotalReviews] = useState(0);
   const [activeTab, setActiveTab] = useState('description');
 
+  // Helper function to check if product is "No Size"
+  const isNoSizeProduct = (product) => {
+    return product && 
+           product.sizes && 
+           product.sizes.length === 1 && 
+           product.sizes[0] === "No Size";
+  };
+
+  // Helper function to handle add to cart logic
+  const handleAddToCart = () => {
+    console.log('🛍️ ADD TO CART clicked');
+    console.log('🛍️ Product Data:', productData);
+    console.log('🔑 Token available:', !!token);
+    
+    let selectedSize;
+    const noSizeProduct = isNoSizeProduct(productData);
+    
+    if (noSizeProduct) {
+      selectedSize = "No Size";
+      console.log('🛍️ No Size product - auto using "No Size"');
+    } else {
+      selectedSize = size;
+      console.log('🛍️ Regular product - using selected size:', selectedSize);
+      
+      // Validate size selection for regular products only
+      if (!selectedSize || selectedSize.trim() === '') {
+        alert("Please select a size");
+        return;
+      }
+    }
+    
+    console.log('🛍️ Calling addToCart with:', { productId: productData._id, size: selectedSize });
+    addToCart(productData._id, selectedSize);
+  };
+
   const fetchProductData = async () => {
     products.map((item) => {
       if (item._id === productId) {
         setProductData(item);
         console.log('🛍️ Product Data:', item);
+        console.log('🛍️ Product Sizes:', item.sizes);
         setImage(item.image[0]);
         
         // Auto-set size for "No Size" products or clear size for regular products
         if (item.sizes && item.sizes.length > 0) {
-          if (item.sizes.includes("No Size") && item.sizes.length === 1) {
+          if (isNoSizeProduct(item)) {
             // Product only has "No Size" - auto select it
-            console.log('📏 Auto-selecting No Size');
+            console.log('📏 Auto-selecting No Size for product:', item.name);
             setSize("No Size");
           } else {
             // Product has regular sizes - clear selection so user must choose
@@ -39,6 +75,7 @@ const Product = () => {
           }
         } else {
           // No sizes defined
+          console.log('📏 No sizes defined for product');
           setSize("");
         }
         
@@ -150,7 +187,8 @@ const Product = () => {
           
           {/* Conditional Size Selection - Only show if product has regular sizes */}
           {productData.sizes && 
-           !(productData.sizes.length === 1 && productData.sizes[0] === "No Size") && (
+           productData.sizes.length > 0 &&
+           !isNoSizeProduct(productData) && (
             <div className="my-8 flex flex-col gap-4">
               <p>Select Size</p>
               <div className="flex gap-2">
@@ -172,9 +210,7 @@ const Product = () => {
           )}
           
           {/* Show info for No Size products */}
-          {productData.sizes && 
-           productData.sizes.length === 1 && 
-           productData.sizes[0] === "No Size" && (
+          {isNoSizeProduct(productData) && (
             <div className="my-8">
               <p className="text-sm text-gray-600 italic">One size fits all</p>
             </div>
@@ -182,31 +218,7 @@ const Product = () => {
           
           {/* We Need to Add this to Global context - using global addToCart Function */}
           <button
-            onClick={() => {
-              // Determine the size to use for cart
-              let selectedSize;
-              
-              // For "No Size" products, force the size to "No Size"
-              if (productData.sizes && 
-                  productData.sizes.length === 1 && 
-                  productData.sizes[0] === "No Size") {
-                selectedSize = "No Size";
-                console.log('🛍️ Using No Size for cart:', selectedSize);
-              } else {
-                // For regular products, use the selected size
-                selectedSize = size;
-                console.log('🛍️ Using selected size for cart:', selectedSize);
-              }
-              
-              // Validate size selection
-              if (!selectedSize || selectedSize.trim() === '') {
-                alert("Please select a size");
-                return;
-              }
-              
-              console.log('🛍️ Adding to cart:', productData._id, selectedSize);
-              addToCart(productData._id, selectedSize);
-            }}
+            onClick={handleAddToCart}
             className="bg-black px-8 py-3 text-sm text-white hover:bg-gray-900 active:bg-gray-700"
           >
             ADD TO CART

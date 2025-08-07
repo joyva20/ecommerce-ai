@@ -15,6 +15,7 @@ import { Bar, Pie } from 'react-chartjs-2';
 import axios from 'axios';
 import { backendURL } from '../App';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 // Register Chart.js components
 ChartJS.register(
@@ -30,6 +31,7 @@ ChartJS.register(
 );
 
 const Dashboard = ({ token }) => {
+  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState({
     totalProducts: 0,
     totalOrders: 0,
@@ -45,6 +47,7 @@ const Dashboard = ({ token }) => {
   const [isRealTime, setIsRealTime] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [nextRefreshIn, setNextRefreshIn] = useState(30);
+  const [recentOrdersLimit, setRecentOrdersLimit] = useState(10); // New state for pagination
 
   // Fetch dashboard data using existing endpoints
   const fetchDashboardData = useCallback(async () => {
@@ -655,7 +658,15 @@ const Dashboard = ({ token }) => {
 
       {/* Recent Orders Table */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Orders</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">Recent Orders</h3>
+          <button 
+            onClick={() => navigate('/orders')}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+          >
+            View All Orders
+          </button>
+        </div>
         {dashboardData.recentOrders.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full table-auto">
@@ -669,7 +680,7 @@ const Dashboard = ({ token }) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {dashboardData.recentOrders.slice(0, 10).map((order, index) => (
+                {dashboardData.recentOrders.slice(0, recentOrdersLimit).map((order, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                       #{order._id?.slice(-6)}
@@ -699,6 +710,27 @@ const Dashboard = ({ token }) => {
                 ))}
               </tbody>
             </table>
+            
+            {/* Show More / Show Less buttons */}
+            {dashboardData.recentOrders.length > 10 && (
+              <div className="mt-4 text-center">
+                {recentOrdersLimit < dashboardData.recentOrders.length ? (
+                  <button 
+                    onClick={() => setRecentOrdersLimit(recentOrdersLimit + 10)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
+                  >
+                    Show More ({dashboardData.recentOrders.length - recentOrdersLimit} remaining)
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => setRecentOrdersLimit(10)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  >
+                    Show Less
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center text-gray-500 py-8">No recent orders</div>

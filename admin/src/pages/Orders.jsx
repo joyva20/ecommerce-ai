@@ -22,7 +22,9 @@ const Orders = ({ token }) => {
         { headers: { token } },
       );
       if (response.data.success) {
-        setOrders(response.data.orders);
+        // Sort orders by date - newest first
+        const sortedOrders = response.data.orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setOrders(sortedOrders);
       } else {
         // Hanya tampilkan notifikasi jika benar-benar unauthorized
         if (response.data.message && response.data.message.toLowerCase().includes("unauthorized")) {

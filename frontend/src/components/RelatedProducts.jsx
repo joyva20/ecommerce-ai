@@ -31,6 +31,7 @@ const RelatedProducts = ({ id, category, subCategory }) => {
               name={item.name}
               price={item.price}
               image={item.image}
+              sizes={item.sizes}
             />
           );
         })}
