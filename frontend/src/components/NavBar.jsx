@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { toast } from "react-toastify";
+import { clearRandomOrder } from "../utils/randomOrder";
 
 const NavBar = () => {
   const [isVisible, setisVisible] = useState(false);
@@ -35,11 +36,16 @@ const NavBar = () => {
   }, []);
 
   const logout = () => {
+    // Clear random order before logout
+    clearRandomOrder(token);
+    
     navigate("/");  // Redirect ke homepage, bukan login page
     localStorage.removeItem("token");
     setToken("");
     setCartItems({});
     setShowDropdown(false);
+    
+    console.log('🎲 User logged out, random order cleared');
   };
 
   const toggleDropdown = () => {

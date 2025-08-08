@@ -4,14 +4,16 @@ import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 import style from "./Collection.module.css";
+import { getRandomOrder } from "../utils/randomOrder";
 
 const Collection = () => {
-  const { products, search, showSearch, refreshProductsData } = useContext(ShopContext);
+  const { products, search, showSearch, refreshProductsData, token } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState("relavent");
+  const [randomizedProducts, setRandomizedProducts] = useState([]);
 
   const toggleCategory = (e) => {
     if (category.includes(e.target.value))
@@ -30,12 +32,12 @@ const Collection = () => {
   };
 
   const applyfilter = () => {
-    // Deep Copy
-    let productsCopy = structuredClone(products);
+    // Use randomized products instead of original products
+    let productsCopy = structuredClone(randomizedProducts);
     
     // Debug info
     console.log('🔍 Filter Debug Info:');
-    console.log('📦 Total products:', productsCopy.length);
+    console.log('📦 Total randomized products:', productsCopy.length);
     console.log('🏷️ Selected categories:', category);
     console.log('🏷️ Selected subcategories:', subCategory);
     
@@ -118,8 +120,17 @@ const Collection = () => {
   useEffect(() => {
     refreshProductsData();
   }, [refreshProductsData]);
+
+  // Handle randomization when products or token changes
+  useEffect(() => {
+    if (products.length > 0) {
+      console.log('🎲 Collection: Setting up randomized products');
+      const randomized = getRandomOrder(products, token);
+      setRandomizedProducts(randomized);
+    }
+  }, [products, token]);
   
-  useEffect(applyfilter, [category, subCategory, products, showSearch, search]);
+  useEffect(applyfilter, [category, subCategory, randomizedProducts, showSearch, search]);
   useEffect(sortProduct, [sortType]);
 
   return (
