@@ -1,8 +1,7 @@
 import Title from "../components/Title";
-import CartTotal from "../components/CartTotal";
+import SelectedCartTotal from "../components/SelectedCartTotal";
 import CheckoutRecommendations from "../components/CheckoutRecommendations";
 import PaymentButton from "../components/PaymentButton";
-import { assets } from "../assets/assets";
 import { useContext, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { toast } from "react-toastify";
@@ -15,7 +14,11 @@ const PlaceOrder = () => {
     token,
     cartItems,
     setCartItems,
+    selectedCartItems,
     getCartAmount,
+    getSelectedCartAmount,
+    getSelectedCartCount,
+    clearSelectedFromCart,
     delivery_fee,
     BACKEND_URL,
     products,
@@ -43,12 +46,12 @@ const PlaceOrder = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Get cart items for recommendations
+  // Get cart items for recommendations (only selected)
   const getCartItemsForRecommendations = () => {
     let orderItems = [];
-    for (const items in cartItems) {
-      for (const item in cartItems[items]) {
-        if (cartItems[items][item] > 0) {
+    for (const items in selectedCartItems) {
+      for (const item in selectedCartItems[items]) {
+        if (selectedCartItems[items][item] && cartItems[items] && cartItems[items][item] > 0) {
           const itemInfo = products.find((product) => product._id === items);
           if (itemInfo) {
             orderItems.push({
@@ -73,29 +76,36 @@ const PlaceOrder = () => {
     try {
       let orderItems = [];
       
-      // Debug: Log cart items
-      console.log('🛒 Cart Items:', cartItems);
+      // Debug: Log selected items
+      console.log('🛒 Selected Cart Items:', selectedCartItems);
+      console.log('🛒 All Cart Items:', cartItems);
       console.log('📦 Products:', products);
       
-      for (const items in cartItems)
-        for (const item in cartItems[items])
-          if (cartItems[items][item] > 0) {
+      // Process only selected items
+      for (const items in selectedCartItems) {
+        for (const item in selectedCartItems[items]) {
+          if (selectedCartItems[items][item] && cartItems[items] && cartItems[items][item] > 0) {
             const itemInfo = structuredClone(
               products.find((product) => product._id === items),
             );
-            if (itemInfo) itemInfo.size = item;
-            itemInfo.quantity = cartItems[items][item]; // Fixed typo: quanitity -> quantity
-            orderItems.push(itemInfo);
+            if (itemInfo) {
+              itemInfo.size = item;
+              itemInfo.quantity = cartItems[items][item];
+              orderItems.push(itemInfo);
+            }
           }
+        }
+      }
       
       // Debug: Log order items
-      console.log('📋 Order Items:', orderItems);
+      console.log('📋 Order Items (Selected):', orderItems);
       
       if (orderItems.length === 0) {
-        toast.error("Your cart is empty! Please add items to cart first.");
+        toast.error("No items selected for checkout! Please select items first.");
         setIsProcessingOrder(false);
         return;
       }
+      
       let orderData = {
         address: {
                   firstName: formData.firstName,
@@ -109,7 +119,7 @@ const PlaceOrder = () => {
 
         },
         items: orderItems,
-        amount: getCartAmount() + delivery_fee,
+        amount: getSelectedCartAmount() + delivery_fee,
       };
       
       switch (paymentMethod) {
@@ -122,8 +132,8 @@ const PlaceOrder = () => {
               { headers: { token } },
             );
             if (response.data.success) {
-              setCartItems({});
-              navigate("/orders");
+              await clearSelectedFromCart();
+              navigate("/orders", { replace: true });
               toast.success("Your order has been placed.");
             } else {
               toast.error(response.data.message);
@@ -147,7 +157,10 @@ const PlaceOrder = () => {
             if (response.data.success) {
               setCurrentOrderId(response.data.orderId);
               toast.success(`Order created! Please complete payment with ${paymentMethod.toUpperCase()}.`);
-              // Cart will be cleared after successful payment
+              
+              // Clear selected cart items and redirect immediately after order creation
+              await clearSelectedFromCart();
+              navigate("/orders", { replace: true });
             } else {
               toast.error(response.data.message);
             }
@@ -166,17 +179,17 @@ const PlaceOrder = () => {
   };
 
   // Handle successful payment
-  const handlePaymentSuccess = (result) => {
+  const handlePaymentSuccess = async (result) => {
     console.log('Payment successful:', result);
-    setCartItems({});
-    navigate("/orders");
+    await clearSelectedFromCart();
+    navigate("/orders", { replace: true });
     toast.success("Payment successful! Your order is being processed.");
   };
 
   // Handle pending payment
   const handlePaymentPending = (result) => {
     console.log('Payment pending:', result);
-    navigate("/orders");
+    navigate("/orders", { replace: true });
     toast.info("Payment is being processed. Please check your order status.");
   };
 
@@ -301,7 +314,7 @@ const PlaceOrder = () => {
       {/*----------------------- Right Side -----------------------*/}
       <div className="mt-8">
         <div className="mt-8 min-w-80">
-          <CartTotal />
+          <SelectedCartTotal />
         </div>
         <div className="mt-12">
           <Title text1={"PAYMENT"} text2={"METHOD"} />

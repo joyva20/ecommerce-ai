@@ -12,15 +12,14 @@ const ShopContextProvider = (props) => {
   const delivery_fee = 10;
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
   
-  // Debug log untuk memastikan BACKEND_URL terbaca
-  console.log('🔧 ShopContext BACKEND_URL:', BACKEND_URL);
-  
   const [search, setSearch] = useState(``);
   const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState({});
+  const [selectedCartItems, setSelectedCartItems] = useState({}); // Track selected items for checkout
   const [productsDB, setProductsDB] = useState([]);
   const [token, setToken] = useState("");
   const [profilePhoto, setProfilePhoto] = useState(null);
+  const [isAddingToCart, setIsAddingToCart] = useState(false); // Add loading state
   //Programmatic Redirection: Navigate to different routes based on application state or conditions.
   const navigate = useNavigate();
 
@@ -45,30 +44,34 @@ const ShopContextProvider = (props) => {
     }
     
     console.log('✅ Using token:', currentToken ? 'yes' : 'no');
+    console.log('🔍 AddToCart params:', { itemid, size });
+    
+    // Find product info for better debugging
+    const productInfo = productsDB.find(product => product._id === itemid);
+    if (productInfo) {
+      console.log('📦 Product info:', {
+        name: productInfo.name,
+        sizes: productInfo.sizes,
+        isEmpty: productInfo.sizes?.length === 0
+      });
+    }
     
     // Special handling: Don't validate size for "No Size" products
     // Only validate size for products that actually require size selection
     if (size !== "No Size" && (!size || size.trim() === '')) {
       console.log('🚫 Size validation failed for regular product:', { size });
-      toast.error("Select Product Size");
+      toast.error("Please select a size");
       return;
+    }
+    
+    // Additional check: Make sure "No Size" is passed correctly
+    if (size === "No Size") {
+      console.log('👕 No Size product detected - proceeding without size validation');
     }
     
     console.log('✅ Size validation passed:', { size });
     console.log('🛍️ AddToCart proceeding with:', { itemid, size });
     
-    let cartData = structuredClone(cartItems);
-    if (cartData[itemid]) {
-      if (cartData[itemid][size]) {
-        cartData[itemid][size] += 1;
-      } else {
-        cartData[itemid][size] = 1;
-      }
-    } else {
-      cartData[itemid] = {};
-      cartData[itemid][size] = 1;
-    }
-    setCartItems(cartData);
     try {
       console.log('📡 Making API call to add to cart...');
       console.log('📡 Request details:', {
@@ -91,7 +94,8 @@ const ShopContextProvider = (props) => {
         console.log('✅ Successfully added to cart');
         toast.success(response.data.message);
         
-        // Update local cart state if API was successful
+        // Update local cart state - only once, after API success
+        let cartData = structuredClone(cartItems);
         if (cartData[itemid]) {
           if (cartData[itemid][size]) {
             cartData[itemid][size] += 1;
@@ -155,6 +159,124 @@ const ShopContextProvider = (props) => {
       }
     }
   };
+
+  // Toggle selected state for cart item
+  const toggleSelectCartItem = (itemid, size) => {
+    let selectedData = structuredClone(selectedCartItems);
+    if (selectedData[itemid]) {
+      if (selectedData[itemid][size]) {
+        delete selectedData[itemid][size];
+        // Remove itemid object if no sizes selected
+        if (Object.keys(selectedData[itemid]).length === 0) {
+          delete selectedData[itemid];
+        }
+      } else {
+        selectedData[itemid][size] = true;
+      }
+    } else {
+      selectedData[itemid] = {};
+      selectedData[itemid][size] = true;
+    }
+    setSelectedCartItems(selectedData);
+  };
+
+  // Select all cart items
+  const selectAllCartItems = () => {
+    let selectedData = {};
+    for (const itemid in cartItems) {
+      selectedData[itemid] = {};
+      for (const size in cartItems[itemid]) {
+        if (cartItems[itemid][size] > 0) {
+          selectedData[itemid][size] = true;
+        }
+      }
+    }
+    setSelectedCartItems(selectedData);
+  };
+
+  // Unselect all cart items
+  const unselectAllCartItems = () => {
+    setSelectedCartItems({});
+  };
+
+  // Check if item is selected
+  const isItemSelected = (itemid, size) => {
+    return selectedCartItems[itemid] && selectedCartItems[itemid][size];
+  };
+
+  // Get selected cart amount
+  const getSelectedCartAmount = () => {
+    let totalAmount = 0;
+    for (const itemid in selectedCartItems) {
+      let itemInfo = productsDB.find((product) => product._id === itemid);
+      if (itemInfo) {
+        for (const size in selectedCartItems[itemid]) {
+          try {
+            if (selectedCartItems[itemid][size] && cartItems[itemid] && cartItems[itemid][size] > 0) {
+              totalAmount += itemInfo.price * cartItems[itemid][size];
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }
+      }
+    }
+    return totalAmount;
+  };
+
+  // Get selected cart count
+  const getSelectedCartCount = () => {
+    let totalCount = 0;
+    for (const itemid in selectedCartItems) {
+      for (const size in selectedCartItems[itemid]) {
+        try {
+          if (selectedCartItems[itemid][size] && cartItems[itemid] && cartItems[itemid][size] > 0) {
+            totalCount += cartItems[itemid][size];
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
+    return totalCount;
+  };
+
+  // Clear selected items from cart after successful checkout
+  const clearSelectedFromCart = async () => {
+    try {
+      // Clear from backend
+      for (const itemid in selectedCartItems) {
+        for (const size in selectedCartItems[itemid]) {
+          if (selectedCartItems[itemid][size]) {
+            await axios.post(
+              BACKEND_URL + "/api/cart/update",
+              { itemid, size, quantity: 0 },
+              { headers: { token } }
+            );
+          }
+        }
+      }
+      
+      // Clear from local state
+      let newCartItems = structuredClone(cartItems);
+      for (const itemid in selectedCartItems) {
+        for (const size in selectedCartItems[itemid]) {
+          if (selectedCartItems[itemid][size] && newCartItems[itemid]) {
+            delete newCartItems[itemid][size];
+            // Remove itemid object if no sizes left
+            if (Object.keys(newCartItems[itemid]).length === 0) {
+              delete newCartItems[itemid];
+            }
+          }
+        }
+      }
+      setCartItems(newCartItems);
+      setSelectedCartItems({});
+    } catch (error) {
+      console.error('Error clearing selected items:', error);
+    }
+  };
+
   const getCartAmount = () => {
     let totalAmount = 0;
     for (const items in cartItems) {
@@ -197,6 +319,11 @@ const ShopContextProvider = (props) => {
       console.error(error);
       toast.error(error.message);
     }
+  };
+
+  // Refresh products data - can be called manually
+  const refreshProductsData = async () => {
+    await getProductsData();
   };
   const getUserCart = async (token) => {
     try {
@@ -259,10 +386,21 @@ const ShopContextProvider = (props) => {
     setShowSearch,
     cartItems,
     setCartItems,
+    selectedCartItems,
     addToCart,
     getCartCount,
     UpdateQuantity,
     getCartAmount,
+    // Selective cart functions
+    toggleSelectCartItem,
+    selectAllCartItems,
+    unselectAllCartItems,
+    isItemSelected,
+    getSelectedCartAmount,
+    getSelectedCartCount,
+    clearSelectedFromCart,
+    // Product management
+    refreshProductsData,
     navigate,
     BACKEND_URL,
     token,

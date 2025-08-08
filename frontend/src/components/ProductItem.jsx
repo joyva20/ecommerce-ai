@@ -15,7 +15,21 @@ const ProductItem = ({ id, image, name, price, sizes }) => {
   const [showModal, setShowModal] = useState(false);
 
   // Check if this is a "No Size" product
-  const isNoSizeProduct = sizes && sizes.length === 1 && sizes[0] === "No Size";
+  const isNoSizeProduct = sizes && (
+    sizes.length === 0 || // Empty sizes array (accessories like socks)
+    (sizes.length === 1 && sizes[0] === "No Size") // Explicit "No Size"
+  );
+  
+  // Debug log
+  if (name && name.toLowerCase().includes('kaki')) {
+    console.log('🧦 Debug ProductItem:', {
+      name,
+      sizes,
+      isNoSizeProduct,
+      sizesLength: sizes?.length,
+      firstSize: sizes?.[0]
+    });
+  }
   
   // Get full product data for modal
   const fullProduct = products.find(p => p._id === id);
@@ -45,6 +59,8 @@ const ProductItem = ({ id, image, name, price, sizes }) => {
         <div 
           onClick={handleClick}
           className="cursor-pointer text-gray-700 flex flex-col justify-between relative group"
+          data-product-type="no-size"
+          data-product-id={id}
         >
           {/* No Size Badge */}
           <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full z-10">
@@ -63,13 +79,14 @@ const ProductItem = ({ id, image, name, price, sizes }) => {
             <p className="pt-3 pb-1 text-sm">{name}</p>
             <p className="text-sm font-medium">{formatCurrency(price)}</p>
             
-            {/* Quick Add Button for No Size Products */}
+            {/* Quick Add Button for No Size Products - Always visible on Collection page */}
             <button 
               onClick={(e) => {
                 e.stopPropagation();
                 setShowModal(true);
               }}
-              className="mt-2 w-full bg-black text-white text-xs py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              className="mt-2 w-full bg-black text-white text-xs py-2 rounded hover:bg-gray-800 transition-colors duration-200"
+              type="button"
             >
               Quick Add
             </button>

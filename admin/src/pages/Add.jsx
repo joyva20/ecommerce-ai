@@ -14,7 +14,7 @@ const Add = ({ token }) => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("Men");
-  const [subCategory, setSubCategory] = useState("Topwear");
+  const [subCategory, setSubCategory] = useState("Top Wear");
   const [bestseller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
 
@@ -61,7 +61,7 @@ const Add = ({ token }) => {
         setDescription("");
         setPrice("");
         setCategory("Men");
-        setSubCategory("Topwear");
+        setSubCategory("Top Wear");
         setBestSeller(false);
         setSizes([]);
       }
@@ -180,9 +180,9 @@ const Add = ({ token }) => {
             value={subCategory}
             className="w-full px-3 py-2"
           >
-            <option value="Topwear">Topwear</option>
-            <option value="Bottomwear">Bottomwear</option>
-            <option value="Winterwear">Winterwear</option>
+            <option value="Top Wear">Top Wear</option>
+            <option value="Bottom Wear">Bottom Wear</option>
+            <option value="Top & Bottom Wear">Top & Bottom Wear</option>
           </select>
         </div>
         <div>

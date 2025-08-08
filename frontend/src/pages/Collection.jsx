@@ -6,7 +6,7 @@ import ProductItem from "../components/ProductItem";
 import style from "./Collection.module.css";
 
 const Collection = () => {
-  const { products, search, showSearch } = useContext(ShopContext);
+  const { products, search, showSearch, refreshProductsData } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
@@ -32,22 +32,53 @@ const Collection = () => {
   const applyfilter = () => {
     // Deep Copy
     let productsCopy = structuredClone(products);
+    
+    // Debug info
+    console.log('🔍 Filter Debug Info:');
+    console.log('📦 Total products:', productsCopy.length);
+    console.log('🏷️ Selected categories:', category);
+    console.log('🏷️ Selected subcategories:', subCategory);
+    
     if(showSearch && search){
       productsCopy = productsCopy.filter((item) =>
         item.name.toLowerCase().includes(search.toLowerCase())
       );
+      console.log('🔍 After search filter:', productsCopy.length);
     }
 
     if (category.length > 0) {
       productsCopy = productsCopy.filter((item) =>
         category.includes(item.category),
       );
+      console.log('🔍 After category filter:', productsCopy.length);
     }
+    
     if (subCategory.length > 0) {
-      productsCopy = productsCopy.filter((item) =>
-        subCategory.includes(item.subCategory),
-      );
+      // Create mapping for subCategory filter values
+      const subCategoryMapping = {
+        "Top Wear": ["Top Wear", "Topwear"], // Support both new and old formats
+        "Bottom Wear": ["Bottom Wear", "Bottomwear"],
+        "Top & Bottom Wear": ["Top & Bottom Wear", "Winterwear"]
+      };
+      
+      console.log('🗺️ SubCategory mapping:', subCategoryMapping);
+      
+      productsCopy = productsCopy.filter((item) => {
+        const match = subCategory.some(selectedSub => {
+          const mappedValues = subCategoryMapping[selectedSub] || [selectedSub];
+          return mappedValues.includes(item.subCategory);
+        });
+        
+        if (match) {
+          console.log('✅ Matched product:', item.name, 'subCategory:', item.subCategory);
+        }
+        
+        return match;
+      });
+      console.log('🔍 After subcategory filter:', productsCopy.length);
     }
+    
+    console.log('🎯 Final filtered products:', productsCopy.length);
     setFilterProducts(productsCopy);
   };
 
@@ -82,6 +113,12 @@ const Collection = () => {
 
   // Use Effect Always runs on Component Mount so need for extra logic to load
   // Products when the page is loaded
+  
+  // Refresh products data when Collection page loads
+  useEffect(() => {
+    refreshProductsData();
+  }, [refreshProductsData]);
+  
   useEffect(applyfilter, [category, subCategory, products, showSearch, search]);
   useEffect(sortProduct, [sortType]);
 
@@ -162,42 +199,42 @@ const Collection = () => {
                 <input
                   className={`w-3 ${style.checkbox}`}
                   type="checkbox"
-                  value={"Topwear"}
+                  value={"Top Wear"}
                   onChange={toggleSubCategory}
                 />{" "}
                 <svg viewBox="0 0 21 21">
                   <polyline points="5 10.75 8.5 14.25 16 6"></polyline>
                 </svg>
               </label>
-              Topwear
+              Top Wear
             </p>
             <p className="flex items-center gap-2">
               <label className={`${style.checkbox} ${style.bounce}`}>
                 <input
                   className={`w-3 ${style.checkbox}`}
                   type="checkbox"
-                  value={"Bottomwear"}
+                  value={"Bottom Wear"}
                   onChange={toggleSubCategory}
                 />{" "}
                 <svg viewBox="0 0 21 21">
                   <polyline points="5 10.75 8.5 14.25 16 6"></polyline>
                 </svg>
               </label>
-              Bottomwear
+              Bottom Wear
             </p>
             <p className="flex items-center gap-2">
               <label className={`${style.checkbox} ${style.bounce}`}>
                 <input
                   className={`w-3 ${style.checkbox}`}
                   type="checkbox"
-                  value={"Winterwear"}
+                  value={"Top & Bottom Wear"}
                   onChange={toggleSubCategory}
                 />{" "}
                 <svg viewBox="0 0 21 21">
                   <polyline points="5 10.75 8.5 14.25 16 6"></polyline>
                 </svg>
               </label>
-              Winterwear
+              Top & Bottom Wear
             </p>
           </div>
         </div>

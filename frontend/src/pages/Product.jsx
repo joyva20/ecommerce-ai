@@ -4,6 +4,7 @@ import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import RelatedProducts from "../components/RelatedProducts";
 import { formatCurrency } from "../utils/formatCurrency";
+import { toast } from "react-toastify";
 
 const Product = () => {
   /*Assuming a route pattern like /posts/:postId
@@ -21,20 +22,37 @@ const Product = () => {
 
   // Helper function to check if product is "No Size"
   const isNoSizeProduct = (product) => {
-    return product && 
-           product.sizes && 
-           product.sizes.length === 1 && 
-           product.sizes[0] === "No Size";
+    if (!product || !product.sizes) return false;
+    
+    // Check for empty sizes array (common for accessories like socks)
+    if (product.sizes.length === 0) return true;
+    
+    // Check for explicit "No Size" entry
+    if (product.sizes.length === 1 && product.sizes[0] === "No Size") return true;
+    
+    return false;
   };
 
   // Helper function to handle add to cart logic
   const handleAddToCart = () => {
+    // Prevent double clicks with simple timestamp check
+    const now = Date.now();
+    if (window.lastAddToCartTime && (now - window.lastAddToCartTime) < 1000) {
+      console.log('🚫 Prevented double click - ignoring');
+      return;
+    }
+    window.lastAddToCartTime = now;
+    
     console.log('🛍️ ADD TO CART clicked');
     console.log('🛍️ Product Data:', productData);
     console.log('🔑 Token available:', !!token);
+    console.log('📏 Current size state:', size);
     
     let selectedSize;
     const noSizeProduct = isNoSizeProduct(productData);
+    
+    console.log('🔍 Is No Size Product?', noSizeProduct);
+    console.log('🔍 Product sizes:', productData?.sizes);
     
     if (noSizeProduct) {
       selectedSize = "No Size";
@@ -45,11 +63,13 @@ const Product = () => {
       
       // Validate size selection for regular products only
       if (!selectedSize || selectedSize.trim() === '') {
-        alert("Please select a size");
+        console.log('🚫 Size validation failed - showing toast error');
+        toast.error("Please select a size");
         return;
       }
     }
     
+    console.log('🛍️ Final selected size:', selectedSize);
     console.log('🛍️ Calling addToCart with:', { productId: productData._id, size: selectedSize });
     addToCart(productData._id, selectedSize);
   };
@@ -63,19 +83,17 @@ const Product = () => {
         setImage(item.image[0]);
         
         // Auto-set size for "No Size" products or clear size for regular products
-        if (item.sizes && item.sizes.length > 0) {
-          if (isNoSizeProduct(item)) {
-            // Product only has "No Size" - auto select it
-            console.log('📏 Auto-selecting No Size for product:', item.name);
-            setSize("No Size");
-          } else {
-            // Product has regular sizes - clear selection so user must choose
-            console.log('📏 Regular sizes available, clearing selection');
-            setSize("");
-          }
+        if (isNoSizeProduct(item)) {
+          // Product is No Size (empty array or explicit "No Size") - auto select it
+          console.log('📏 Auto-selecting No Size for product:', item.name);
+          setSize("No Size");
+        } else if (item.sizes && item.sizes.length > 0) {
+          // Product has regular sizes - clear selection so user must choose
+          console.log('📏 Regular sizes available, clearing selection');
+          setSize("");
         } else {
-          // No sizes defined
-          console.log('📏 No sizes defined for product');
+          // Fallback case
+          console.log('📏 Fallback: No sizes defined for product');
           setSize("");
         }
         

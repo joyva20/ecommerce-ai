@@ -8,8 +8,19 @@ import CartTotal from "../components/CartTotal";
 import { formatCurrency } from "../utils/formatCurrency";
 
 const Cart = () => {
-  const { products, currency, cartItems, UpdateQuantity, navigate } =
-    useContext(ShopContext);
+  const { 
+    products, 
+    currency, 
+    cartItems, 
+    UpdateQuantity, 
+    navigate,
+    toggleSelectCartItem,
+    selectAllCartItems,
+    unselectAllCartItems,
+    isItemSelected,
+    getSelectedCartAmount,
+    getSelectedCartCount
+  } = useContext(ShopContext);
   const [cartData, setCarData] = useState([]);
 
   useEffect(() => {
@@ -35,6 +46,51 @@ const Cart = () => {
         <div>
           <Title text1={"YOUR"} text2={"CART"} />
         </div>
+        
+        {/* Select All Controls */}
+        {cartData.length > 0 && (
+          <div className="mt-6 mb-4 flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="selectAll"
+                checked={getSelectedCartCount() === cartData.length && cartData.length > 0}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    selectAllCartItems();
+                  } else {
+                    unselectAllCartItems();
+                  }
+                }}
+                className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
+              />
+              <label htmlFor="selectAll" className="text-sm font-medium text-gray-700">
+                Select All Items ({cartData.length})
+              </label>
+            </div>
+            
+            <div className="flex gap-2">
+              <button
+                onClick={selectAllCartItems}
+                className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition"
+              >
+                Select All
+              </button>
+              <button
+                onClick={unselectAllCartItems}
+                className="px-3 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600 transition"
+              >
+                Unselect All
+              </button>
+            </div>
+            
+            {getSelectedCartCount() > 0 && (
+              <div className="ml-auto text-sm font-medium text-green-600">
+                {getSelectedCartCount()} items selected
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <div>
         {cartData.map((item, index) => {
@@ -44,8 +100,20 @@ const Cart = () => {
           return (
             <div
               key={item._id + index}
-              className="grid grid-cols-[4fr_0.5fr_0.5fr] items-center gap-4 border-b border-t py-4 text-gray-700 sm:grid-cols-[4fr_2fr_0.5fr]"
+              className={`grid grid-cols-[auto_4fr_0.5fr_0.5fr] items-center gap-4 border-b border-t py-4 text-gray-700 sm:grid-cols-[auto_4fr_2fr_0.5fr] ${
+                isItemSelected(item._id, item.size) ? 'bg-green-50 border-green-200' : ''
+              }`}
             >
+              {/* Checkbox */}
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isItemSelected(item._id, item.size)}
+                  onChange={() => toggleSelectCartItem(item._id, item.size)}
+                  className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
+                />
+              </div>
+              
               <div className="flex items-start gap-5">
                 <img
                   src={productData.image[0]}
@@ -122,6 +190,19 @@ const Cart = () => {
       </div>
       <div className="my-20 flex justify-end">
         <div className="w-full sm:w-[450px]">
+          {/* Selected Items Summary */}
+          {getSelectedCartCount() > 0 && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <h3 className="font-semibold text-green-800 mb-2">Selected for Checkout:</h3>
+              <p className="text-sm text-green-700">
+                {getSelectedCartCount()} items selected
+              </p>
+              <p className="text-lg font-bold text-green-800">
+                Total: {formatCurrency(getSelectedCartAmount())}
+              </p>
+            </div>
+          )}
+          
           <CartTotal />
           <div className="w-full text-end">
             <button
@@ -131,16 +212,22 @@ const Cart = () => {
                   navigate("/login");
                   return;
                 }
-                let navPath = "/place-order";
-                if (cartData.length <= 0) {
-                  navPath = "/cart";
-                  toast.error("Add an item to the cart to proceed.");
+                
+                if (getSelectedCartCount() <= 0) {
+                  toast.error("Please select items to checkout");
+                  return;
                 }
-                navigate(navPath);
+                
+                navigate("/place-order");
               }}
-              className="my-8 bg-black px-8 py-3 text-sm text-white"
+              className={`my-8 px-8 py-3 text-sm text-white transition ${
+                getSelectedCartCount() > 0 
+                  ? 'bg-black hover:bg-gray-800' 
+                  : 'bg-gray-400 cursor-not-allowed'
+              }`}
+              disabled={getSelectedCartCount() <= 0}
             >
-              PROCEED TO CHECKOUT
+              PROCEED TO CHECKOUT ({getSelectedCartCount()} items)
             </button>
           </div>
         </div>

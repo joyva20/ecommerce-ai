@@ -8,6 +8,14 @@ const NoSizeProductModal = ({ product, isOpen, onClose, onViewDetails }) => {
   if (!isOpen || !product) return null;
 
   const handleAddToCart = () => {
+    // Prevent double clicks with simple timestamp check
+    const now = Date.now();
+    if (window.lastModalAddToCartTime && (now - window.lastModalAddToCartTime) < 1000) {
+      console.log('🚫 Modal: Prevented double click - ignoring');
+      return;
+    }
+    window.lastModalAddToCartTime = now;
+    
     console.log('🛍️ Modal Add to Cart clicked for No Size product:', product.name);
     addToCart(product._id, "No Size");
     onClose(); // Close modal after adding to cart
