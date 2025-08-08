@@ -107,10 +107,12 @@ const RecommendationPage = () => {
   }, [token, BACKEND_URL]);
 
   return (
-    <div className="my-10 min-h-[60vh]">
-      <div className="py-8 text-center text-3xl">
-        <Title text1={`RECOMMENDATION`} text2={`FOR YOU`} />
-        <p className="m-auto w-3/4 text-xs text-gray-600 sm:text-sm md:text-base">
+    <div className="my-10 min-h-[60vh] px-4 sm:px-6 lg:px-8">
+      <div className="py-8 text-center">
+        <div className="text-3xl mb-4">
+          <Title text1={`RECOMMENDATION`} text2={`FOR YOU`} />
+        </div>
+        <p className="mx-auto max-w-4xl text-xs text-gray-600 sm:text-sm md:text-base leading-relaxed">
           {token 
             ? hasOrderHistory 
               ? dominanceInfo 
@@ -127,8 +129,8 @@ const RecommendationPage = () => {
           }
         </p>
         {dominanceInfo && (
-          <div className="mt-4 text-center">
-            <span className={`inline-block px-4 py-2 rounded-full text-sm ${fallbackUsed ? 'bg-orange-100 text-orange-700' : dominanceInfo.is_type_tie ? 'bg-blue-100 text-blue-700' : 'bg-black text-white'}`}>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${fallbackUsed ? 'bg-orange-100 text-orange-700' : dominanceInfo.is_type_tie ? 'bg-blue-100 text-blue-700' : 'bg-black text-white'}`}>
               {fallbackUsed 
                 ? 'Mode Fallback' 
                 : dominanceInfo.is_type_tie 
@@ -139,7 +141,7 @@ const RecommendationPage = () => {
               }
             </span>
             {dominanceInfo.primary_category && !fallbackUsed && (
-              <span className="inline-block ml-2 px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+              <span className="inline-block px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
                 Kategori: {dominanceInfo.primary_category.charAt(0).toUpperCase() + dominanceInfo.primary_category.slice(1)} ({dominanceInfo.primary_category_count || 0})
               </span>
             )}
@@ -147,58 +149,66 @@ const RecommendationPage = () => {
         )}
       </div>
       {loading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="flex justify-center items-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading recommendations...</p>
+          </div>
+        </div>
       ) : recommended.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {recommended.map((item, index) => (
-            <div key={item._id || index} className="relative">
-              <ProductItem
-                id={item._id}
-                image={item.image}
-                name={item.name}
-                price={item.price}
-                sizes={item.sizes}
-              />
-              
-              {/* Show dominance match indicator */}
-              {item.dominance_match && !item.fallback_mode && (
-                <span className="absolute top-2 left-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full shadow">
-                  Perfect Match
-                </span>
-              )}
-              
-              {/* Show fallback indicator */}
-              {item.fallback_mode && !item.database_fallback && (
-                <span className="absolute top-2 left-2 bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full shadow">
-                  Based on History
-                </span>
-              )}
-              
-              {/* Show database fallback indicator */}
-              {item.database_fallback && (
-                <span className="absolute top-2 left-2 bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full shadow">
-                  Recommended
-                </span>
-              )}
-              
-              {/* Show similarity score */}
-              {item.similarity_score && (
-                <span className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full shadow">
-                  {((item.similarity_score || 0) * 100).toFixed(0)}%
-                </span>
-              )}
-            </div>
-          ))}
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 gap-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4">
+            {recommended.map((item, index) => (
+              <div key={item._id || index} className="relative">
+                <ProductItem
+                  id={item._id}
+                  image={item.image}
+                  name={item.name}
+                  price={item.price}
+                  sizes={item.sizes}
+                />
+                
+                {/* Show dominance match indicator - positioned below One Size badge */}
+                {item.dominance_match && !item.fallback_mode && (
+                  <span className="absolute top-12 left-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full shadow-sm z-10">
+                    Perfect Match
+                  </span>
+                )}
+                
+                {/* Show fallback indicator - positioned below One Size badge */}
+                {item.fallback_mode && !item.database_fallback && (
+                  <span className="absolute top-12 left-2 bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full shadow-sm z-10">
+                    Based on History
+                  </span>
+                )}
+                
+                {/* Show database fallback indicator - positioned below One Size badge */}
+                {item.database_fallback && (
+                  <span className="absolute top-12 left-2 bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full shadow-sm z-10">
+                    Recommended
+                  </span>
+                )}
+                
+                {/* Show similarity score - positioned at top right */}
+                {item.similarity_score && (
+                  <span className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full shadow-sm z-10">
+                    {((item.similarity_score || 0) * 100).toFixed(0)}%
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
-        <div className="text-center py-8">
+        <div className="max-w-2xl mx-auto text-center py-12">
           {token ? (
             hasOrderHistory ? (
               dominanceInfo ? (
                 /* User has order history but no matching recommendations */
                 <div className="text-gray-500">
-                  <h3 className="text-lg font-medium mb-2">Rekomendasi Sedang Diproses</h3>
-                  <p className="mb-2">
+                  <div className="text-6xl mb-6">🎯</div>
+                  <h3 className="text-xl font-semibold mb-4">Rekomendasi Sedang Diproses</h3>
+                  <p className="mb-3 text-gray-600">
                     {dominanceInfo.is_type_tie 
                       ? `Tipe Seimbang`
                       : dominanceInfo.primary_type
@@ -206,17 +216,18 @@ const RecommendationPage = () => {
                         : 'Menganalisis pola belanja Anda'
                     }
                   </p>
-                  <p className="mb-4">Sistem sedang mencari produk yang sesuai dengan preferensi tipe produk Anda. Silakan refresh halaman atau checkout produk lain untuk mendapatkan rekomendasi.</p>
-                  <a href="/collection" className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition">
+                  <p className="mb-6 text-gray-600 leading-relaxed">Sistem sedang mencari produk yang sesuai dengan preferensi tipe produk Anda. Silakan refresh halaman atau checkout produk lain untuk mendapatkan rekomendasi.</p>
+                  <a href="/collection" className="inline-block px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200">
                     Lanjut Belanja
                   </a>
                 </div>
               ) : (
                 /* User has order history but no dominance info */
                 <div className="text-gray-500">
-                  <h3 className="text-lg font-medium mb-2">Analisis Pola Belanja</h3>
-                  <p className="mb-4">Sistem sedang menganalisis pola belanja Anda. Lakukan lebih banyak pembelian untuk mendapatkan rekomendasi yang lebih personal.</p>
-                  <a href="/collection" className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition">
+                  <div className="text-6xl mb-6">📊</div>
+                  <h3 className="text-xl font-semibold mb-4">Analisis Pola Belanja</h3>
+                  <p className="mb-6 text-gray-600 leading-relaxed">Sistem sedang menganalisis pola belanja Anda. Lakukan lebih banyak pembelian untuk mendapatkan rekomendasi yang lebih personal.</p>
+                  <a href="/collection" className="inline-block px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200">
                     Lanjut Belanja
                   </a>
                 </div>
@@ -224,9 +235,10 @@ const RecommendationPage = () => {
             ) : (
               /* User is logged in but no order history */
               <div className="text-gray-500">
-                <h3 className="text-lg font-medium mb-2">Belum Ada Rekomendasi</h3>
-                <p className="mb-4">Untuk mendapatkan rekomendasi produk personal berdasarkan dominasi kategori dan tipe, silakan lakukan checkout terlebih dahulu.</p>
-                <a href="/collection" className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition">
+                <div className="text-6xl mb-6">🛍️</div>
+                <h3 className="text-xl font-semibold mb-4">Belum Ada Rekomendasi</h3>
+                <p className="mb-6 text-gray-600 leading-relaxed">Untuk mendapatkan rekomendasi produk personal berdasarkan dominasi kategori dan tipe, silakan lakukan checkout terlebih dahulu.</p>
+                <a href="/collection" className="inline-block px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200">
                   Mulai Belanja
                 </a>
               </div>
@@ -234,9 +246,10 @@ const RecommendationPage = () => {
           ) : (
             /* User not logged in */
             <div className="text-gray-500">
-              <h3 className="text-lg font-medium mb-2">Login Required</h3>
-              <p className="mb-4">Silakan login untuk mendapatkan rekomendasi produk personal berdasarkan dominasi kategori dan tipe favorit Anda.</p>
-              <a href="/login" className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition">
+              <div className="text-6xl mb-6">🔐</div>
+              <h3 className="text-xl font-semibold mb-4">Login Required</h3>
+              <p className="mb-6 text-gray-600 leading-relaxed">Silakan login untuk mendapatkan rekomendasi produk personal berdasarkan dominasi kategori dan tipe favorit Anda.</p>
+              <a href="/login" className="inline-block px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200">
                 Login
               </a>
             </div>

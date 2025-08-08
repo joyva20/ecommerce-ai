@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import MyProfile from "./pages/MyProfile";
 import RecommendationPage from "./pages/RecommendationPage";
 import Collection from "./pages/Collection";
+import BestSellers from "./pages/BestSellers";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Product from "./pages/Product";
@@ -24,6 +25,7 @@ import "./globalNoEdit.css";
 
 const pages = {
   home: { path: "/", element: <Home /> },
+  bestsellers: { path: "/bestsellers", element: <BestSellers /> },
   collection: { path: "/collection", element: <Collection /> },
   about: { path: "/about", element: <About /> },
   contact: { path: "/contact", element: <Contact /> },

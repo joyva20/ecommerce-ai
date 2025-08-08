@@ -155,12 +155,32 @@ const Dashboard = ({ token }) => {
         return acc;
       }, {});
 
-      // Group products by subCategory (type)
+      // Group products by subCategory (type) with standardized names
       const productsByType = products.reduce((acc, product) => {
-        const type = product.subCategory || 'Untyped';
+        let type = product.subCategory || 'Untyped';
+        
+        // Map old category names to standardized names
+        const typeMapping = {
+          'Topwear': 'Top Wear',
+          'Bottomwear': 'Bottom Wear', 
+          'Winterwear': 'Top & Bottom Wear',
+          'Top Wear': 'Top Wear',
+          'Bottom Wear': 'Bottom Wear',
+          'Top & Bottom Wear': 'Top & Bottom Wear'
+        };
+        
+        const originalType = type;
+        type = typeMapping[type] || type;
+        
+        if (originalType !== type) {
+          console.log(`📊 Dashboard: Mapped "${originalType}" → "${type}"`);
+        }
+        
         acc[type] = (acc[type] || 0) + 1;
         return acc;
       }, {});
+      
+      console.log('📊 Dashboard Products by Type:', productsByType);
 
       // Get recent orders (last 10)
       const recentOrders = orders
@@ -395,12 +415,20 @@ const Dashboard = ({ token }) => {
         label: 'Products by Type',
         data: Object.values(dashboardData.productsByType),
         backgroundColor: [
-          'rgba(255, 99, 132, 0.8)',
-          'rgba(54, 162, 235, 0.8)',
-          'rgba(255, 205, 86, 0.8)',
-          'rgba(75, 192, 192, 0.8)',
-          'rgba(153, 102, 255, 0.8)',
-          'rgba(255, 159, 64, 0.8)',
+          'rgba(255, 99, 132, 0.8)',   // Pink for Top Wear
+          'rgba(54, 162, 235, 0.8)',   // Blue for Bottom Wear  
+          'rgba(75, 192, 192, 0.8)',   // Teal for Top & Bottom Wear
+          'rgba(255, 205, 86, 0.8)',   // Yellow for others
+          'rgba(153, 102, 255, 0.8)',  // Purple for others
+          'rgba(255, 159, 64, 0.8)',   // Orange for others
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)', 
+          'rgba(75, 192, 192, 1)',
+          'rgba(255, 205, 86, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)',
         ],
         borderWidth: 2,
       },

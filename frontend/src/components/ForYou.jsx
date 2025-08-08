@@ -106,10 +106,12 @@ const ForYou = () => {
   }, [token, BACKEND_URL, products]);
 
   return (
-    <div className="my-10">
-      <div className="py-8 text-center text-3xl">
-        <Title text1={`FOR`} text2={`YOU`} />
-        <p className="m-auto w-3/4 text-xs text-gray-600 sm:text-sm md:text-base">
+    <div className="my-10 px-4 sm:px-6 lg:px-8">
+      <div className="py-8 text-center">
+        <div className="text-3xl mb-4">
+          <Title text1={`FOR`} text2={`YOU`} />
+        </div>
+        <p className="mx-auto max-w-4xl text-xs text-gray-600 sm:text-sm md:text-base leading-relaxed">
           {hasOrder
             ? "Rekomendasi produk spesial untuk Anda berdasarkan riwayat belanja."
             : "Checkout sekarang dan rasakan rekomendasi produk spesial untuk Anda!"}
@@ -117,48 +119,76 @@ const ForYou = () => {
       </div>
       
       {loading ? (
-        <div className="text-center py-8">Loading recommendations...</div>
+        <div className="flex justify-center items-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading recommendations...</p>
+          </div>
+        </div>
       ) : hasOrder && recommended.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {recommended.map((item, index) => (
-            <div key={item._id || index} className="relative">
-              <ProductItem
-                id={item._id}
-                image={item.image}
-                name={item.name}
-                price={item.price}
-                sizes={item.sizes}
-              />
-              
-              {/* Show dominance match indicator */}
-              {item.dominance_match && (
-                <span className="absolute top-2 left-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full shadow">
-                  Perfect Match
-                </span>
-              )}
-              
-              {/* Show similarity score */}
-              {item.similarity_score && (
-                <span className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full shadow">
-                  {((item.similarity_score || 0) * 100).toFixed(0)}%
-                </span>
-              )}
-            </div>
-          ))}
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 gap-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4">
+            {recommended.map((item, index) => (
+              <div key={item._id || index} className="relative">
+                <ProductItem
+                  id={item._id}
+                  image={item.image}
+                  name={item.name}
+                  price={item.price}
+                  sizes={item.sizes}
+                />
+                
+                {/* Show dominance match indicator - positioned below One Size badge */}
+                {item.dominance_match && (
+                  <span className="absolute top-12 left-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full shadow-sm z-10">
+                    Perfect Match
+                  </span>
+                )}
+                
+                {/* Show similarity score - positioned at top right */}
+                {item.similarity_score && (
+                  <span className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full shadow-sm z-10">
+                    {((item.similarity_score || 0) * 100).toFixed(0)}%
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">
-          {hasOrder
-            ? "Sedang memproses rekomendasi untuk Anda. Silakan refresh halaman atau checkout produk lain untuk mendapatkan rekomendasi yang lebih baik."
-            : token 
-              ? "Checkout sekarang untuk mendapatkan rekomendasi personal berdasarkan dominasi kategori dan tipe produk favorit Anda!"
-              : "Login terlebih dahulu untuk mendapatkan rekomendasi personal!"
-          }
+        <div className="max-w-2xl mx-auto text-center py-12">
+          <div className="text-gray-500">
+            {hasOrder ? (
+              <>
+                <div className="text-6xl mb-6">🎯</div>
+                <h3 className="text-lg font-semibold mb-4">Rekomendasi Sedang Diproses</h3>
+                <p className="text-gray-600 leading-relaxed mb-6">
+                  Sedang memproses rekomendasi untuk Anda. Silakan refresh halaman atau checkout produk lain untuk mendapatkan rekomendasi yang lebih baik.
+                </p>
+              </>
+            ) : token ? (
+              <>
+                <div className="text-6xl mb-6">🛍️</div>
+                <h3 className="text-lg font-semibold mb-4">Mulai Belanja Untuk Rekomendasi Personal</h3>
+                <p className="text-gray-600 leading-relaxed mb-6">
+                  Checkout sekarang untuk mendapatkan rekomendasi personal berdasarkan dominasi kategori dan tipe produk favorit Anda!
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="text-6xl mb-6">🔐</div>
+                <h3 className="text-lg font-semibold mb-4">Login Untuk Rekomendasi Personal</h3>
+                <p className="text-gray-600 leading-relaxed mb-6">
+                  Login terlebih dahulu untuk mendapatkan rekomendasi personal!
+                </p>
+              </>
+            )}
+          </div>
         </div>
       )}
       
       <div className="flex justify-center mt-8">
-        <a href="/recommendation" className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition">
+        <a href="/recommendation" className="inline-block px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200">
           Lihat Semua Rekomendasi
         </a>
       </div>

@@ -60,6 +60,10 @@ const NavBar = () => {
           <p>HOME</p>
           <hr className="hidden h-[1.5px] w-2/4 border-none bg-gray-700" />
         </NavLink>
+        <NavLink to="/bestsellers" className="flex flex-col items-center gap-1">
+          <p>BEST SELLERS</p>
+          <hr className="hidden h-[1.5px] w-2/4 border-none bg-gray-700" />
+        </NavLink>
         <NavLink to="/collection" className="flex flex-col items-center gap-1">
           <p>COLLECTION</p>
           <hr className="hidden h-[1.5px] w-2/4 border-none bg-gray-700" />
