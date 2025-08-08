@@ -53,15 +53,22 @@ const MyProfile = () => {
         }
       });
       
-      setEditPhoto(false);
-      setProfilePic(null);
-      setPreview(null);
-      
-      // Refresh user data and navbar profile photo
+      // Get the updated user data with new photo URL
       const updatedProfile = await axios.get(`${BACKEND_URL}/api/user-profile/profile`, {
         headers: { token }
       });
-      setUser(updatedProfile.data);
+      
+      // Update user state with new photo - add cache busting
+      const newUser = { 
+        ...updatedProfile.data,
+        photo: updatedProfile.data.photo ? `${updatedProfile.data.photo}?t=${Date.now()}` : null
+      };
+      setUser(newUser);
+      
+      // Reset form states
+      setEditPhoto(false);
+      setProfilePic(null);
+      setPreview(null);
       
       // Refresh profile photo in navbar
       if (refreshProfilePhoto) {
@@ -147,12 +154,13 @@ const MyProfile = () => {
         <h2 className="text-2xl font-semibold mb-6">My Profile</h2>
         <div className="flex flex-col items-center mb-6">
           <img
-            src={preview || user.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=random&color=fff&size=200`}
+            src={preview || (user.photo ? user.photo : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=random&color=fff&size=200`)}
             alt="Profile"
             className="w-28 h-28 rounded-full object-cover border-2 border-gray-200 mb-2"
             onError={(e) => {
               e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=random&color=fff&size=200`;
             }}
+            key={user.photo} // Force re-render when photo changes
           />
           {editPhoto ? (
             <>

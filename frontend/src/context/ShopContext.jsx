@@ -358,7 +358,11 @@ const ShopContextProvider = (props) => {
           headers: { token }
         });
         if (response.data && response.data.photo) {
-          setProfilePhoto(response.data.photo);
+          // Add cache busting to force refresh
+          const photoWithCacheBust = `${response.data.photo}?t=${Date.now()}`;
+          setProfilePhoto(photoWithCacheBust);
+        } else {
+          setProfilePhoto(null);
         }
       } catch (error) {
         console.error("Error refreshing profile photo:", error);
