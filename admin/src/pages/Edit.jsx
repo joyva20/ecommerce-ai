@@ -14,7 +14,7 @@ const Edit = ({ token, productId, onClose, onUpdated }) => {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("Men");
   const [subCategory, setSubCategory] = useState("Top Wear");
-  const [bestseller, setBestSeller] = useState(false);
+
   const [sizes, setSizes] = useState([]);
 
   useEffect(() => {
@@ -31,7 +31,6 @@ const Edit = ({ token, productId, onClose, onUpdated }) => {
           setPrice(p.price);
           setCategory(p.category);
           setSubCategory(p.subCategory);
-          setBestSeller(p.bestseller || p.bestSeller || false);
           setSizes(p.sizes || []);
           setImage1(p.image[0] || false);
           setImage2(p.image[1] || false);
@@ -56,7 +55,6 @@ const Edit = ({ token, productId, onClose, onUpdated }) => {
       formData.append("price", price);
       formData.append("category", category);
       formData.append("subCategory", subCategory);
-      formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
       if (image1 && typeof image1 !== "string") formData.append("image1", image1);
       if (image2 && typeof image2 !== "string") formData.append("image2", image2);

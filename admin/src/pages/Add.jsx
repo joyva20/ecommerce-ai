@@ -15,7 +15,7 @@ const Add = ({ token }) => {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("Men");
   const [subCategory, setSubCategory] = useState("Top Wear");
-  const [bestseller, setBestSeller] = useState(false);
+
   const [sizes, setSizes] = useState([]);
 
   const onSubmitHandler = async (e) => {
@@ -30,7 +30,6 @@ const Add = ({ token }) => {
       formData.append("price", numericPrice);
       formData.append("category", category);
       formData.append("subCategory", subCategory);
-      formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
       if (image1 || image2 || image3 || image4) {
         /**
@@ -62,7 +61,6 @@ const Add = ({ token }) => {
         setPrice("");
         setCategory("Men");
         setSubCategory("Top Wear");
-        setBestSeller(false);
         setSizes([]);
       }
     } catch (error) {
@@ -252,18 +250,6 @@ const Add = ({ token }) => {
             </div>
           ))}
         </div>
-      </div>
-      <div className="flex gap-2 mt-2">
-        <input
-          onChange={() => setBestSeller((prev) => !prev)}
-          checked={bestseller}
-          type="checkbox"
-          name="bestseller"
-          id="bestseller"
-        />
-        <label className="cursor-pointer" htmlFor="bestseller">
-          Add to bestseller
-        </label>
       </div>
       <button type="submit" className="w-28 py-3 mt-4 bg-black text-white">
         ADD
