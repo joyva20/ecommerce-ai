@@ -106,9 +106,6 @@ const recommendProducts = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-// Rekomendasi berdasarkan riwayat checkout user - DEPRECATED
-// Use /api/recommendations/checkout endpoint instead
-// This function is kept for backward compatibility but should not be used
 
 // Helper function to sync products to recommendation service
 const syncToRecommendationService = async () => {
