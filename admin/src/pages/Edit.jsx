@@ -67,11 +67,11 @@ const Edit = ({ token, productId, onClose, onUpdated }) => {
         { headers: { token } },
       );
       if (response.data.success) {
-        toast.success(response.data.message || "Edit produk berhasil!");
+        toast.success(response.data.message || "Product updated successfully!");
         onUpdated && onUpdated();
         onClose && onClose();
       } else {
-        toast.error(response.data.message || "Gagal edit produk");
+        toast.error(response.data.message || "Failed to update product");
       }
     } catch (error) {
       toast.error(error.message);
@@ -198,18 +198,6 @@ const Edit = ({ token, productId, onClose, onUpdated }) => {
                 </div>
               ))}
             </div>
-          </div>
-          <div className="flex gap-2 mt-2">
-            <input
-              onChange={() => setBestSeller((prev) => !prev)}
-              checked={bestseller}
-              type="checkbox"
-              name="bestseller"
-              id="bestseller"
-            />
-            <label className="cursor-pointer" htmlFor="bestseller">
-              Add to bestseller
-            </label>
           </div>
           <div className="flex gap-2 justify-end mt-4">
             <button type="button" onClick={onClose} className="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Cancel</button>

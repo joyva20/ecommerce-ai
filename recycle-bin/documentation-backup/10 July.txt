@@ -1,0 +1,9 @@
+
+1. Progress yang sudah dicapai (misal: backend, frontend, fitur utama, data yang sudah diolah).
+2. Permasalahan teknis yang sedang dihadapi (: error, logika rekomendasi(dominan rekomendasi), integrasi frontend-backend).
+3. Rencana pengembangan selanjutnya dan target waktu.
+4. Pertanyaan atau masukan dari Pak Suko.
+
+Contoh kalimat:
+- “Saya sudah mengembangkan sistem rekomendasi produk pada aplikasi e-commerce, namun masih ada kendala pada logika dominasi rekomendasi berdasarkan kategori. Mohon masukan terkait pendekatan yang saya gunakan.”
+- “Berikut progress dan kendala yang saya alami, serta rencana ke depan. Apakah ada saran atau referensi tambahan?

@@ -33,7 +33,7 @@ const Orders = ({ token }) => {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Gagal mengambil data order");
+      toast.error("Failed to fetch order data");
     }
   };
 
@@ -82,7 +82,7 @@ const Orders = ({ token }) => {
 
   return (
     <div className="container mx-auto px-4">
-      <h2 className="text-2xl font-bold mb-4">Daftar Order</h2>
+      <h2 className="text-2xl font-bold mb-4">Order List</h2>
       {orders.length === 0 ? (
         <p className="text-center text-gray-500">Belum ada order.</p>
       ) : (
@@ -178,7 +178,7 @@ const Orders = ({ token }) => {
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded shadow-lg">
-            <p>Yakin ingin menghapus order ini?</p>
+            <p>Are you sure you want to delete this order?</p>
             <div className="mt-4 flex justify-end gap-2">
               <button
                 className="px-4 py-2 bg-gray-300 rounded"
@@ -198,14 +198,14 @@ const Orders = ({ token }) => {
                     );
                     
                     if (response.data.success) {
-                      toast.success("Order berhasil dihapus");
+                      toast.success("Order successfully deleted");
                       fetchAllOrders();
                     } else {
-                      toast.error(response.data.message || "Gagal menghapus order");
+                      toast.error(response.data.message || "Failed to delete order");
                     }
                   } catch (error) {
                     console.error("Delete error:", error);
-                    toast.error("Gagal menghapus order");
+                    toast.error("Failed to delete order");
                   }
                   setDeleting(false);
                   setShowDeleteModal(false);
@@ -213,7 +213,7 @@ const Orders = ({ token }) => {
                 }}
                 disabled={deleting}
               >
-                {deleting ? "Menghapus..." : "Hapus"}
+                {deleting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

@@ -1,0 +1,41 @@
+📚 Link Referensi Faktual:
+1. IEEE (2020) - Systematic Study on Recommender Systems in E-Commerce
+🔗 Link: https://ieeexplore.ieee.org/document/9118884
+
+Title: "A Systematic Study on the Recommender Systems in the E-Commerce"
+DOI: 10.1109/ICICCS48265.2020.9118884
+2. IEEE (2024) - Job Recommendation using TF-IDF and Cosine Similarity
+🔗 Link: https://ieeexplore.ieee.org/abstract/document/10714763
+
+Title: "Job Recommendation by Content Filtering using TF-IDF and Cosine Similarity"
+DOI: 10.1109/ICAIIHI60592.2024.10714763
+3. ScienceDirect (2023) - Application of Recommended Systems for E-commerce
+🔗 Link: https://www.sciencedirect.com/science/article/pii/S187705092302224X
+
+Title: "Application of Recommended Systems for E-commerce"
+Publisher: Procedia Computer Science
+4. Springer (2023) - E-commerce Personalized Recommendations
+🔗 Link: https://link.springer.com/article/10.1007/s43069-023-00286-5
+
+Title: "E-commerce Personalized Recommendations: a Deep Neural Collaborative Filtering"
+DOI: 10.1007/s43069-023-00286-5
+5. IIETA (2024) - Recommendation System for E-Commerce Using Collaborative Filtering
+🔗 Link: https://iieta.org/journals/jesa/paper/10.18280/jesa.570421
+
+Title: "Recommendation System for E-Commerce Using Collaborative Filtering"
+Journal: Journal of European Systems Automation
+6. arXiv (2022) - Recommender Systems in E-commerce
+🔗 Link: https://arxiv.org/pdf/2212.13910
+
+Title: "Recommender Systems in E-commerce"
+arXiv ID: arXiv:2212.13910
+7. ResearchGate (2022) - Movie Recommendation System using TF-IDF
+🔗 Link: https://www.researchgate.net/profile/Minal_Swami2/publication/360575583_The_Movie_Recommendation_System_using_Content_Based_Filtering_with_TF-IDF-Vectorization_and_Levenshtein_Distance/links/6708fc04e3c0600c7c9bc8cc/The-Movie-Recommendation-System-using-Content-Based-Filtering-with-TF-IDF-Vectorization-and-Levenshtein-Distance.pdf
+
+Title: "The Movie Recommendation System using Content Based Filtering with TF-IDF-Vectorization and Levenshtein Distance"
+
+✅ Catatan Penting:
+Semua link ini FAKTUAL dan dapat diakses untuk verifikasi
+IEEE papers memerlukan akses institusi atau subscription
+ArXiv dan ResearchGate dapat diakses gratis
+ScienceDirect dan Springer mungkin memerlukan akses berbayar

@@ -114,7 +114,7 @@ const ForYou = () => {
         <p className="mx-auto max-w-4xl text-xs text-gray-600 sm:text-sm md:text-base leading-relaxed">
           {hasOrder
             ? "Rekomendasi produk spesial untuk Anda berdasarkan riwayat belanja."
-            : "Checkout sekarang dan rasakan rekomendasi produk spesial untuk Anda!"}
+            : "Checkout now and experience special product recommendations for you!"}
         </p>
       </div>
       
@@ -163,7 +163,7 @@ const ForYou = () => {
                 <div className="text-6xl mb-6">🎯</div>
                 <h3 className="text-lg font-semibold mb-4">Rekomendasi Sedang Diproses</h3>
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  Sedang memproses rekomendasi untuk Anda. Silakan refresh halaman atau checkout produk lain untuk mendapatkan rekomendasi yang lebih baik.
+                  Processing recommendations for you. Please refresh the page or checkout other products to get better recommendations.
                 </p>
               </>
             ) : token ? (
@@ -171,7 +171,7 @@ const ForYou = () => {
                 <div className="text-6xl mb-6">🛍️</div>
                 <h3 className="text-lg font-semibold mb-4">Mulai Belanja Untuk Rekomendasi Personal</h3>
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  Checkout sekarang untuk mendapatkan rekomendasi personal berdasarkan dominasi kategori dan tipe produk favorit Anda!
+                  Checkout now to get personal recommendations based on your favorite category and product type dominance!
                 </p>
               </>
             ) : (

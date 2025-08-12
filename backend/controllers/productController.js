@@ -9,7 +9,6 @@ const editProduct = async (req, res) => {
       category,
       subCategory,
       sizes,
-      bestseller,
     } = req.body;
     // Ambil produk lama
     const oldProduct = await productModel.findById(id);
@@ -44,7 +43,6 @@ const editProduct = async (req, res) => {
         price: Number(price),
         category,
         subCategory,
-        bestseller: bestseller === "true" || bestseller === true,
         sizes: typeof sizes === "string" ? JSON.parse(sizes) : sizes,
         image: imagesURL,
       },
@@ -160,7 +158,6 @@ const addProduct = async (req, res) => {
       category,
       subCategory,
       sizes,
-      bestseller,
     } = req.body;
     // If the image is available in req.files then get the image
     const image1 = req.files.image1 && req.files.image1[0];
@@ -194,7 +191,6 @@ const addProduct = async (req, res) => {
       price: Number(price),
       category,
       subCategory,
-      bestseller: bestseller === "true" ? true : false,
       sizes: JSON.parse(sizes),
       image: imagesURL,
       date: Date.now(),
