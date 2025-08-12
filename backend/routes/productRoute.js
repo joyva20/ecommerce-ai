@@ -32,8 +32,6 @@ productRouter.post(
 // Define the route for retrieving a single product, which triggers the getSingleProduct function
 // Define the route for listing all products, which triggers the listProducts function
 productRouter.post("/recommend", recommendProducts);
-// DEPRECATED: Use /api/recommendations/checkout instead
-// productRouter.post("/recommend-on-checkout", recommendOnCheckout);
 productRouter.post(
   "/add",
   adminAuth,
