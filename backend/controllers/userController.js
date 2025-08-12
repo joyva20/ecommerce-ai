@@ -2,8 +2,15 @@
 const editUser = async (req, res) => {
   try {
     const { id, name, email } = req.body;
-    if (!id) return res.json({ success: false, message: "User ID required" });
-    const update = {};
+    if (!id) return res.json({ success: false, message: "User ID required" });  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Reset password with token
+const resetPassword = async (req, res) => {
+  try {
+    const { resetToken, newPassword } = req.body; update = {};
     if (name) update.name = name;
     if (email) update.email = email;
     await userModel.findByIdAndUpdate(id, update);
@@ -100,10 +107,10 @@ const registerUser = async (req, res) => {
                 { minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1, returnScore: false, pointsPerUnique: 1, pointsPerRepeat: 0.5, pointsForContainingLower: 10, pointsForContainingUpper: 10, pointsForContainingNumber: 10, pointsForContainingSymbol: 10 }
              */
     // res.send(`IS Not Strong Password? ${!validator.isStrongPassword(password)}`)
-    if (!validator.isStrongPassword(password) || password.length <= 8)
+    if (!validator.isStrongPassword(password) || password.length < 8)
       return res.json({
         success: false,
-        message: "Please enter a strong password",
+        message: "Please enter a strong password (minimum 8 characters)",
       });
     //   Hashing user Password
     const salt = await bcrypt.genSalt(10);
@@ -151,8 +158,6 @@ const forgotPassword = async (req, res) => {
   try {
     const { email, username } = req.body;
     
-    console.log("Forgot password request:", { email, username });
-    
     // Check if both email and username are provided
     if (!email || !username) {
       return res.json({ 
@@ -163,7 +168,6 @@ const forgotPassword = async (req, res) => {
 
     // Check if any users exist at all (for debugging)
     const totalUsers = await userModel.countDocuments();
-    console.log("Total users in database:", totalUsers);
     
     if (totalUsers === 0) {
       return res.json({ 
@@ -177,15 +181,8 @@ const forgotPassword = async (req, res) => {
       email: { $regex: new RegExp(`^${email}$`, 'i') },
       name: { $regex: new RegExp(`^${username}$`, 'i') }
     });
-
-    console.log("User search result:", user ? "Found" : "Not found");
     
     if (!user) {
-      // For debugging, let's see what users exist
-      const allUsers = await userModel.find({}, { name: 1, email: 1, _id: 0 });
-      console.log("Available users:", allUsers);
-      console.log("Search criteria:", { email: email.toLowerCase(), username });
-      
       return res.json({ 
         success: false, 
         message: `No user found with email "${email}" and username "${username}". Please check your credentials.` 
@@ -219,7 +216,6 @@ const resetPassword = async (req, res) => {
     const { resetToken, newPassword } = req.body;
     
     if (!resetToken || !newPassword) {
-      console.log("Missing resetToken or newPassword:", { resetToken: !!resetToken, newPassword: !!newPassword });
       return res.json({ 
         success: false, 
         message: "Reset token and new password are required" 
@@ -260,7 +256,6 @@ const resetPassword = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Reset password error:", error);
     res.json({ success: false, message: error.message });
   }
 };
