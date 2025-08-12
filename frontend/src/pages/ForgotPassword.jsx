@@ -105,8 +105,8 @@ const ForgotPassword = () => {
       return;
     }
 
-    if (newPassword.length <= 8) {
-      toast.error("Password must be longer than 8 characters");
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters long");
       return;
     }
 
