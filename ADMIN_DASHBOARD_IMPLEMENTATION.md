@@ -3,19 +3,19 @@
 ## ✅ **Dashboard Features yang Dibuat**
 
 ### **1. Overview Cards (KPI Metrics)**
-- 📦 **Total Products** - Jumlah total produk dalam database
-- 📋 **Total Orders** - Jumlah total pesanan yang pernah dibuat
-- 👥 **Total Users** - Jumlah total pengguna terdaftar
-- 💰 **Total Revenue** - Total pendapatan dari pesanan yang sudah dibayar
+- 📦 **Total Products** - Total number of products in database
+- 📋 **Total Orders** - Total number of orders ever created
+- 👥 **Total Users** - Total number of registered users
+- 💰 **Total Revenue** - Total revenue from paid orders
 
 ### **2. Interactive Charts**
-- 📊 **Bar Chart: Products by Category** - Distribusi produk per kategori
-- 🥧 **Pie Chart: Products by Type** - Distribusi produk per subkategori/type
+- 📊 **Bar Chart: Products by Category** - Product distribution per category
+- 🥧 **Pie Chart: Products by Type** - Product distribution per subcategory/type
 - 📈 **Sales Trend** - Tren penjualan 7 hari terakhir (ready untuk implementasi)
 
 ### **3. Data Tables & Lists**
-- 📋 **Recent Orders Table** - 10 pesanan terbaru dengan status dan detail
-- 🏆 **Top Selling Products** - 5 produk terlaris dengan metrics
+- 📋 **Recent Orders Table** - 10 latest orders with status and details
+- 🏆 **Top Selling Products** - Top 5 best-selling products with metrics
 
 ### **4. Real-time Data**
 - 🔄 **Auto Refresh** - Button untuk refresh data dashboard
