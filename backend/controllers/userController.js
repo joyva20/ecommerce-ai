@@ -145,6 +145,125 @@ const adminLogin = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+// Route for forgot password - verify user by email and username
+const forgotPassword = async (req, res) => {
+  try {
+    const { email, username } = req.body;
+    
+    console.log("Forgot password request:", { email, username });
+    
+    // Check if both email and username are provided
+    if (!email || !username) {
+      return res.json({ 
+        success: false, 
+        message: "Both email and username are required" 
+      });
+    }
+
+    // Check if any users exist at all (for debugging)
+    const totalUsers = await userModel.countDocuments();
+    console.log("Total users in database:", totalUsers);
+    
+    if (totalUsers === 0) {
+      return res.json({ 
+        success: false, 
+        message: "No users found in database. Please register first." 
+      });
+    }
+
+    // Find user by email and name (username) - case insensitive
+    const user = await userModel.findOne({ 
+      email: { $regex: new RegExp(`^${email}$`, 'i') },
+      name: { $regex: new RegExp(`^${username}$`, 'i') }
+    });
+
+    console.log("User search result:", user ? "Found" : "Not found");
+    
+    if (!user) {
+      // For debugging, let's see what users exist
+      const allUsers = await userModel.find({}, { name: 1, email: 1, _id: 0 });
+      console.log("Available users:", allUsers);
+      console.log("Search criteria:", { email: email.toLowerCase(), username });
+      
+      return res.json({ 
+        success: false, 
+        message: `No user found with email "${email}" and username "${username}". Please check your credentials.` 
+      });
+    }
+
+    // Generate a temporary reset token (valid for 15 minutes)
+    const resetToken = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    res.json({ 
+      success: true, 
+      message: "User verified successfully. You can now reset your password.",
+      resetToken,
+      userId: user._id
+    });
+
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Route for reset password with token
+const resetPassword = async (req, res) => {
+  try {
+    console.log("Reset password request received:", req.body);
+    const { resetToken, newPassword } = req.body;
+    
+    if (!resetToken || !newPassword) {
+      console.log("Missing resetToken or newPassword:", { resetToken: !!resetToken, newPassword: !!newPassword });
+      return res.json({ 
+        success: false, 
+        message: "Reset token and new password are required" 
+      });
+    }
+
+    // Verify the reset token
+    let decoded;
+    try {
+      decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.json({ 
+        success: false, 
+        message: "Invalid or expired reset token" 
+      });
+    }
+
+    // Validate new password strength
+    if (!validator.isStrongPassword(newPassword) || newPassword.length <= 8) {
+      return res.json({
+        success: false,
+        message: "Please enter a strong password (min 8 characters with uppercase, lowercase, number, and symbol)",
+      });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update user password
+    await userModel.findByIdAndUpdate(decoded.userId, {
+      password: hashedPassword
+    });
+
+    res.json({ 
+      success: true, 
+      message: "Password reset successfully! You can now login with your new password." 
+    });
+
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.json({ success: false, message: error.message });
+  }
+};
 // Hapus user
 const removeUser = async (req, res) => {
   try {
@@ -157,4 +276,4 @@ const removeUser = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser, adminLogin, removeUser, listUsers, editUser };
+export { loginUser, registerUser, adminLogin, removeUser, listUsers, editUser, forgotPassword, resetPassword };

@@ -3,7 +3,7 @@ import axios from "axios";
 import { backendURL } from "../App";
 import { toast } from "react-toastify";
 
-const Login = ({ setToken }) => {
+const Login = ({ setToken, setShowForgotPassword }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const onSubmitHandler = async (e) => {
@@ -53,6 +53,15 @@ const Login = ({ setToken }) => {
               value={password}
               required
             />
+          </div>
+          <div className="flex justify-between items-center mb-3">
+            <button
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+              className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              Forgot your password?
+            </button>
           </div>
           <button
             className="mt-2 w-full py-2 px-4 rounded-md text-white bg-black"

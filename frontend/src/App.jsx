@@ -11,6 +11,7 @@ import Contact from "./pages/Contact";
 import Product from "./pages/Product";
 import Cart from "./pages/Cart";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import PlaceOrders from "./pages/PlaceOrder";
 import Orders from "./pages/Orders";
 import PaymentResult from "./pages/PaymentResult";
@@ -32,6 +33,7 @@ const pages = {
   product: { path: "/product/:productId", element: <Product /> },
   cart: { path: "/cart", element: <Cart /> },
   login: { path: "/login", element: <Login /> },
+  forgotPassword: { path: "/forgot-password", element: <ForgotPassword /> },
   placeOrders: { path: "/place-order", element: <PlaceOrders /> },
   orders: { path: "/orders", element: <Orders /> },
   paymentFinish: { path: "/payment/finish", element: <PaymentResult /> },
